@@ -7,6 +7,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 
 import java.util.List;
+import java.util.Scanner;
 
 public class Controller {
     @FXML
@@ -42,14 +43,28 @@ public class Controller {
     private NetworkDiscovery networkDiscovery;
     private SqlDbConnection db_conn;
     private WmiScripts scripts;
+    private String ip;
+    private String user;
+    private String password;
+    private String dbName;
 
     // creates a NetworkDiscovery instance that gets cidr information
     public void initialize() {
         networkDiscovery = new NetworkDiscovery();
         setIPRange();
         ipListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);  // allows to select multiple ips
-        // create db conn instance
-        db_conn = new SqlDbConnection("192.168.4.113","asoa","dotdotelectricshot","659_project");
+
+        // get db info
+        Scanner s = new Scanner(System.in);
+        System.out.println("What is the ip for the db?");
+        this.ip = s.next();
+        System.out.println("What is the username?");
+        this.user = s.next();
+        System.out.println("What is the password");
+        this.password = s.next();
+        System.out.println("What is the database name?");
+        this.dbName = s.next();
+        db_conn = new SqlDbConnection(ip, user, password, dbName);  // connect to db
         scripts = new WmiScripts();  // call singleton class to create scripts that correspond to button names
     }
 

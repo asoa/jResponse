@@ -26,7 +26,7 @@ public class SqlDbConnection {
         this.dbName = dbName;
            try {
             conn = DriverManager.getConnection(connectionUrl);
-            System.out.printf("Connection to db: %s, sucessful", dbName);
+            System.out.printf("Connection to db: %s, successful", dbName);
         } catch (SQLException e){
                System.out.println(e);
                System.out.printf("Connection to db: %s, failed", dbName);
@@ -49,7 +49,7 @@ public class SqlDbConnection {
 
     public void dbInsert() {
         try(Statement statement = conn.createStatement()) {
-            String insertSql = "INSERT INTO dbo.candidate VALUES(6, 'Alex', 'Bailey', '910-644-4179', 'ab@gmail.com', '427', 'Walberta Rd', 'Syracuse', 'New York', '13219', 'Ass Kicker', 'Awesome');\n";
+            String insertSql = "INSERT INTO dbo.candidate VALUES(7, 'Ted', 'Benike', '771-369-0911', 'tb@gmail.com', '987', 'Cherry Rd', 'Orlando', 'Florida', '13568', 'Boss', 'Man');\n";
             statement.executeQuery(insertSql);
         } catch (SQLException e) {
             System.out.println(e);
