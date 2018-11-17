@@ -1,5 +1,6 @@
 import datamodel.*;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Service;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -7,7 +8,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 
 import java.util.List;
-import java.util.Scanner;
 
 public class Controller {
     @FXML
@@ -40,6 +40,8 @@ public class Controller {
     @FXML
     private TextArea enumTextArea;
 
+    private Service<ObservableList<PingParrallel.PingResult>> ping_service;
+
     private NetworkDiscovery networkDiscovery;
     private SqlDbConnection db_conn;
     private WmiScripts scripts;
@@ -51,29 +53,30 @@ public class Controller {
     // creates a NetworkDiscovery instance that gets cidr information
     public void initialize() {
         networkDiscovery = new NetworkDiscovery();
-        setIPRange();
+        setIPRange(); // sets the cidr information in the drop down box
         ipListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);  // allows to select multiple ips
 
         // get db info
-        Scanner s = new Scanner(System.in);
-        System.out.println("What is the ip for the db?");
-        this.ip = s.next();
-        System.out.println("What is the username?");
-        this.user = s.next();
-        System.out.println("What is the password");
-        this.password = s.next();
-        System.out.println("What is the database name?");
-        this.dbName = s.next();
-        db_conn = new SqlDbConnection(ip, user, password, dbName);  // connect to db
+//        Scanner s = new Scanner(System.in);
+//        System.out.println("What is the ip for the db?");
+//        this.ip = s.next();
+//        System.out.println("What is the username?");
+//        this.user = s.next();
+//        System.out.println("What is the password");
+//        this.password = s.next();
+//        System.out.println("What is the database name?");
+//        this.dbName = s.next();
+//        db_conn = new SqlDbConnection(ip, user, password, dbName);  // connect to db
+//        db_conn = new SqlDbConnection("<ip>", "<user>", "<password>", "<db>");
         scripts = new WmiScripts();  // call singleton class to create scripts that correspond to button names
     }
 
     // sets the startRange and endRange values
+    // TODO: allow user to manual select range
     @FXML
     public void onNetworkSelected() {
         List<NetworkDiscovery.NetworkInfo> nwList = networkDiscovery.getNwInfo();
         String item = networkChoice.getSelectionModel().getSelectedItem();
-        NetworkDiscovery.NetworkInfo nwInfo = null;
         for (NetworkDiscovery.NetworkInfo nw : nwList) {
             try {
                 if (nw.getNetworkAndCidr().equals(item)) {
@@ -86,32 +89,26 @@ public class Controller {
         }
     }
 
-    // calls pingHosts() when scan button is selected
+    // calls PingParrallel when scan button is selected
     @FXML
     public void onScanSelected() {
-        if(ipTable.getItems().size() > 1) {
-            ipTable.getItems().clear();  // clears ipTable table of current items
-            networkDiscovery.pingHosts();
-            ipTable.setItems(PingParrallel.getAliveHosts());
-            TableColumn<PingParrallel.PingResult, String> ipAddress = new TableColumn<PingParrallel.PingResult, String>("Reachable Hosts");
-            ipAddress.setCellValueFactory(new PropertyValueFactory("ipAddress"));
-            TableColumn<PingParrallel.PingResult, String> hostname = new TableColumn<PingParrallel.PingResult, String>("Hostname");
-            hostname.setCellValueFactory(new PropertyValueFactory("hostname"));
-            ipTable.getColumns().setAll(ipAddress,hostname);
-            ipListView.setItems(PingParrallel.getAliveHosts()); // updates the Enumeration tab ip list
-//            db_conn.dbSelect();
-            db_conn.dbInsert();
-        } else {
-            networkDiscovery.pingHosts();
-            ipTable.setItems(PingParrallel.getAliveHosts());
-            TableColumn<PingParrallel.PingResult, String> ipAddress = new TableColumn<PingParrallel.PingResult, String>("Reachable Hosts");
-            ipAddress.setCellValueFactory(new PropertyValueFactory("ipAddress"));
-            TableColumn<PingParrallel.PingResult, String> hostname = new TableColumn<PingParrallel.PingResult, String>("Hostname");
-            hostname.setCellValueFactory(new PropertyValueFactory("hostname"));
-            ipTable.getColumns().setAll(ipAddress,hostname);
-            ipListView.setItems(PingParrallel.getAliveHosts()); // updates the Enumeration tab ip list
-//            db_conn.dbSelect();
-            db_conn.dbInsert();
+        // bind the service returned observable list to the listview
+        ping_service = new PingParrallel(networkDiscovery.getHostList());
+        ipTable.itemsProperty().bind(ping_service.valueProperty());
+        TableColumn<PingParrallel.PingResult, String> ipAddress = new TableColumn<PingParrallel.PingResult, String>("Reachable Hosts");
+        ipAddress.setCellValueFactory(new PropertyValueFactory("ipAddress"));  // set the ipaddress column of the tablecolumn
+        TableColumn<PingParrallel.PingResult, String> hostname = new TableColumn<PingParrallel.PingResult, String>("Hostname");
+        hostname.setCellValueFactory(new PropertyValueFactory("hostname"));
+        ipTable.getColumns().setAll(ipAddress,hostname);
+        ipListView.itemsProperty().bind(ping_service.valueProperty()); // updates the Enumeration tab ip list
+
+        if(ping_service.getState() == Service.State.SUCCEEDED) {
+            // write output to db?
+
+            ping_service.reset();
+            ping_service.start();
+        } else if(ping_service.getState() == Service.State.READY) {
+            ping_service.start();
         }
     }
 
@@ -129,9 +126,6 @@ public class Controller {
         enumTextArea.setText("");
         System.out.println("button pressed: " + e.toString());
         ObservableList<PingParrallel.PingResult> results = ipListView.getSelectionModel().getSelectedItems();  // get PingResult objects from ListView
-//        for(PingParrallel.PingResult result: results) {
-//            System.out.println(result.getIpAddress());
-//        }
         String buttonName = ((Button)e.getSource()).getText();  // get button name
         String script = scripts.getScript(buttonName);
         WmiParrallel wmi = new WmiParrallel(buttonName, script, results);  // call wmi constructor
@@ -142,15 +136,13 @@ public class Controller {
         wmi.setThreadsDone(false);
     }
 
-    @FXML
-    public void testFunc() {
-        System.out.println("label clicked");
-    }
 
+    // TODO: fix redundant network list
     private void setIPRange() {
         for (NetworkDiscovery.NetworkInfo nw : networkDiscovery.getNwInfo()) {
             networkChoice.getItems().add(nw.getNetworkAndCidr());
         }
         networkChoice.getSelectionModel().selectFirst();
+
     }
 }

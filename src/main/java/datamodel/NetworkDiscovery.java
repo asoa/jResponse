@@ -28,14 +28,9 @@ public class NetworkDiscovery {
         hostList = FXCollections.observableArrayList();
         aliveHosts = FXCollections.observableArrayList();
         networkInfo.getIPList(); // gets the CIDR range for the subnet to be scanned
-//        pingHosts();
-//        networkInfo.pingHosts();
+
     }
 
-    public void pingHosts() {
-        PingParrallel ping = new PingParrallel(hostList);
-        aliveHosts = ping.getAliveHosts();
-    }
 
     // getters and setters
     public List<NetworkInfo> getNwInfo() {
@@ -103,6 +98,7 @@ public class NetworkDiscovery {
         }
 
 
+        // TODO: get all interfaces
         // gets cidr info
         public NetworkInfo() {
             try {
@@ -130,7 +126,7 @@ public class NetworkDiscovery {
 
         }
 
-        public void getIPList() {
+        public void getIPList() {  // generate list of IPs from cidr
             String nwIP = "";
             Pattern patternObj = Pattern.compile("(\\d+\\.\\d+\\.\\d+\\.)");
             Matcher match = patternObj.matcher(networkAndCidr);

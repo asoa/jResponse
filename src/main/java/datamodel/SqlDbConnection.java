@@ -2,6 +2,8 @@ package datamodel;
 
 import java.sql.*;
 
+// TODO: turn into a service
+
 public class SqlDbConnection {
     // instance vars
     private String serverIp;
@@ -13,7 +15,7 @@ public class SqlDbConnection {
 
     // constructor
 
-    public SqlDbConnection(String serverIp, String userName, String password, String dbName) {
+    public SqlDbConnection(String serverIp, String userName, String password, String dbName) throws ClassNotFoundException{
         String connectionUrl = "jdbc:sqlserver://" + serverIp + ":" + "1433" + ";"
                 + "databaseName=" + dbName + ";"
                 + "user=" + userName + ";"
@@ -25,9 +27,10 @@ public class SqlDbConnection {
         this.password = password;
         this.dbName = dbName;
            try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             conn = DriverManager.getConnection(connectionUrl);
             System.out.printf("Connection to db: %s, successful", dbName);
-        } catch (SQLException e){
+        } catch (SQLException | ClassNotFoundException e){
                System.out.println(e);
                System.out.printf("Connection to db: %s, failed", dbName);
         }

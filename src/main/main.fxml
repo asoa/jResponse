@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="mainPanel" stylesheets="@/styles.css" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+<BorderPane fx:id="mainPanel"  xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
     <top>
         <TabPane>
             <tabs>
@@ -87,7 +87,7 @@
                                     <panes>
                                         <TitledPane text="Default Enumeration">
                                             <VBox alignment="TOP_CENTER" prefHeight="372.0" prefWidth="20.0" spacing="5.0">
-                                                <Button fx:id="test" onAction="#handleButtonClick" prefWidth="200.0" text="Computer Info" />
+                                                <Button onAction="#handleButtonClick" prefWidth="200.0" text="Computer Info" />
                                                 <Button onAction="#handleButtonClick" prefWidth="200.0" text="Network Connections" />
                                                 <Button onAction="#handleButtonClick" prefWidth="200" text="Running Programs" />
                                             </VBox>
