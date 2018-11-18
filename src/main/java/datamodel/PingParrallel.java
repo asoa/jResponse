@@ -105,7 +105,7 @@ public class PingParrallel extends Service<ObservableList<PingParrallel.PingResu
                 hostname = ipObj.getHostname();
                 state = address.isReachable(TIMEOUT);  // Java implementation of ICMP ECHO REQUEST is sent to address
                 if (state) {
-//                    System.out.println(ipAddress + ": " + hostname + ": " + state);  // debug code
+                    System.out.println(ipAddress + ": " + hostname + ": " + state);  // debug code
                     aliveHosts.add(new PingResult(address.getHostAddress(), hostname, state));
                     aliveHostsList.add(address.getHostAddress());  // TODO: research using lambda
 //                    return new PingResult(address.getHostAddress(), state);

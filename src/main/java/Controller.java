@@ -52,7 +52,7 @@ public class Controller {
     private String dbName;
 
     // creates a NetworkDiscovery instance that gets cidr information
-    public void initialize() {
+    public void initialize() throws ClassNotFoundException {
         networkDiscovery = new NetworkDiscovery();
         setIPRange(); // sets the cidr information in the drop down box
         ipListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);  // allows to select multiple ips
@@ -79,8 +79,8 @@ public class Controller {
 //        this.password = s.next();
 //        System.out.println("What is the database name?");
 //        this.dbName = s.next();
-//        db_conn = new SqlDbConnection(ip, user, password, dbName);  // connect to db
-//        db_conn = new SqlDbConnection("<ip>", "<user>", "<password>", "<db>");
+        db_conn = new SqlDbConnection("192.168.3.155", "user2", "dotdotelectricshot", "project");  // connect to db
+        db_conn.createTables();
         scripts = new WmiScripts();  // call singleton class to create scripts that correspond to button names
     }
 
@@ -112,9 +112,10 @@ public class Controller {
                 ObservableList<PingParrallel.PingResult> pingResults = ((PingParrallel) ping_service).getAliveHosts();
                 List<PingParrallel.PingResult> pingResultsList = new ArrayList<PingParrallel.PingResult>(pingResults);
                 System.out.println("Writing to Database...\n");
+                db_conn.dbComputerInsert(pingResultsList);
                 for(PingParrallel.PingResult item: pingResultsList) {
                     // TODO: call db_service write method
-                    System.out.printf("%s,%s\n", item.getHostname(), item.getIpAddress());
+//                    System.out.printf("%s,%s\n", item.getHostname(), item.getIpAddress());
                 }
 
             } catch (Exception e) {
