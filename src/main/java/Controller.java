@@ -7,6 +7,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Controller {
@@ -56,6 +57,18 @@ public class Controller {
         setIPRange(); // sets the cidr information in the drop down box
         ipListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);  // allows to select multiple ips
 
+
+        // bind the service returned observable list to the listview
+        ping_service = new PingParrallel(networkDiscovery.getHostList());
+//        ((PingParrallel) ping_service).getAliveHosts();
+        ipTable.itemsProperty().bind(ping_service.valueProperty());
+        TableColumn<PingParrallel.PingResult, String> ipAddress = new TableColumn<PingParrallel.PingResult, String>("Reachable Hosts");
+        ipAddress.setCellValueFactory(new PropertyValueFactory("ipAddress"));  // set the ipaddress column of the tablecolumn
+        TableColumn<PingParrallel.PingResult, String> hostname = new TableColumn<PingParrallel.PingResult, String>("Hostname");
+        hostname.setCellValueFactory(new PropertyValueFactory("hostname"));
+        ipTable.getColumns().setAll(ipAddress,hostname);
+        ipListView.itemsProperty().bind(ping_service.valueProperty()); // updates the Enumeration tab ip list
+
         // get db info
 //        Scanner s = new Scanner(System.in);
 //        System.out.println("What is the ip for the db?");
@@ -92,19 +105,23 @@ public class Controller {
     // calls PingParrallel when scan button is selected
     @FXML
     public void onScanSelected() {
-        // bind the service returned observable list to the listview
-        ping_service = new PingParrallel(networkDiscovery.getHostList());
-        ipTable.itemsProperty().bind(ping_service.valueProperty());
-        TableColumn<PingParrallel.PingResult, String> ipAddress = new TableColumn<PingParrallel.PingResult, String>("Reachable Hosts");
-        ipAddress.setCellValueFactory(new PropertyValueFactory("ipAddress"));  // set the ipaddress column of the tablecolumn
-        TableColumn<PingParrallel.PingResult, String> hostname = new TableColumn<PingParrallel.PingResult, String>("Hostname");
-        hostname.setCellValueFactory(new PropertyValueFactory("hostname"));
-        ipTable.getColumns().setAll(ipAddress,hostname);
-        ipListView.itemsProperty().bind(ping_service.valueProperty()); // updates the Enumeration tab ip list
 
         if(ping_service.getState() == Service.State.SUCCEEDED) {
             // write output to db?
+            try {
+                ObservableList<PingParrallel.PingResult> pingResults = ((PingParrallel) ping_service).getAliveHosts();
+                List<PingParrallel.PingResult> pingResultsList = new ArrayList<PingParrallel.PingResult>(pingResults);
+                System.out.println("Writing to Database...\n");
+                for(PingParrallel.PingResult item: pingResultsList) {
+                    // TODO: call db_service write method
+                    System.out.printf("%s,%s\n", item.getHostname(), item.getIpAddress());
+                }
 
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+
+            ipTable.getItems().clear();
             ping_service.reset();
             ping_service.start();
         } else if(ping_service.getState() == Service.State.READY) {

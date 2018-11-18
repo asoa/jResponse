@@ -14,7 +14,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
-
 public class PingParrallel extends Service<ObservableList<PingParrallel.PingResult>> {
     // instance vars
     private boolean state = false;
@@ -49,12 +48,11 @@ public class PingParrallel extends Service<ObservableList<PingParrallel.PingResu
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                } finally {
-                    shutPoolDown();
                 }
                 return aliveHosts;  // return observable list to binded value in controller
             }
         };
+
     }
 
     public void shutPoolDown() {
@@ -62,20 +60,21 @@ public class PingParrallel extends Service<ObservableList<PingParrallel.PingResu
         pool.shutdown();
     }
 
-    public void buildIPList() {
-        for(PingResult result: aliveHosts) {
-            aliveHostsList.add(result.ipAddress);
-        }
-    }
+//    public void buildIPList() {
+//        for(PingResult result: aliveHosts) {
+//            aliveHostsList.add(result.ipAddress);
+//        }
+//    }
 
     // getters and setters
-    public  ObservableList<PingResult> getAliveHosts() {
+    public ObservableList<PingResult> getAliveHosts() {
         return aliveHosts;
     }
 
     public List<NetworkDiscovery.IP> getHostList() {
         return hostList;
     }
+
 
     // start inner class Ping
     class Ping implements Callable<PingResult> {
@@ -106,7 +105,7 @@ public class PingParrallel extends Service<ObservableList<PingParrallel.PingResu
                 hostname = ipObj.getHostname();
                 state = address.isReachable(TIMEOUT);  // Java implementation of ICMP ECHO REQUEST is sent to address
                 if (state) {
-                    System.out.println(ipAddress + ": " + hostname + ": " + state);
+//                    System.out.println(ipAddress + ": " + hostname + ": " + state);  // debug code
                     aliveHosts.add(new PingResult(address.getHostAddress(), hostname, state));
                     aliveHostsList.add(address.getHostAddress());  // TODO: research using lambda
 //                    return new PingResult(address.getHostAddress(), state);
