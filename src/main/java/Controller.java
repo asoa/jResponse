@@ -1,6 +1,7 @@
 import datamodel.*;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
+import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -42,6 +43,7 @@ public class Controller {
     private TextArea enumTextArea;
 
     private Service<ObservableList<PingParrallel.PingResult>> ping_service;
+    private Service<String> wmi_service;
 
     private NetworkDiscovery networkDiscovery;
     private SqlDbConnection db_conn;
@@ -60,6 +62,7 @@ public class Controller {
 
         // bind the service returned observable list to the listview
         ping_service = new PingParrallel(networkDiscovery.getHostList());
+
 //        ((PingParrallel) ping_service).getAliveHosts();
         ipTable.itemsProperty().bind(ping_service.valueProperty());
         TableColumn<PingParrallel.PingResult, String> ipAddress = new TableColumn<PingParrallel.PingResult, String>("Reachable Hosts");
@@ -79,7 +82,7 @@ public class Controller {
 //        this.password = s.next();
 //        System.out.println("What is the database name?");
 //        this.dbName = s.next();
-        db_conn = new SqlDbConnection("192.168.3.155", "user2", "dotdotelectricshot", "project");  // connect to db
+        db_conn = new SqlDbConnection("192.168.4.113", "asoa", "dotdotelectricshot", "659_project");  // connect to db
         db_conn.createTables();
         scripts = new WmiScripts();  // call singleton class to create scripts that correspond to button names
     }
@@ -107,16 +110,14 @@ public class Controller {
     public void onScanSelected() {
 
         if(ping_service.getState() == Service.State.SUCCEEDED) {
-            // write output to db?
             try {
                 ObservableList<PingParrallel.PingResult> pingResults = ((PingParrallel) ping_service).getAliveHosts();
-                List<PingParrallel.PingResult> pingResultsList = new ArrayList<PingParrallel.PingResult>(pingResults);
+                List<PingParrallel.PingResult> pingResultsList = new ArrayList<PingParrallel.PingResult>(pingResults);  // convert obs list to arraylist
                 System.out.println("Writing to Database...\n");
                 db_conn.dbComputerInsert(pingResultsList);
-                for(PingParrallel.PingResult item: pingResultsList) {
-                    // TODO: call db_service write method
-//                    System.out.printf("%s,%s\n", item.getHostname(), item.getIpAddress());
-                }
+//                for(PingParrallel.PingResult item: pingResultsList) {
+//                   System.out.printf("%s,%s\n", item.getHostname(), item.getIpAddress());
+//                }
 
             } catch (Exception e) {
                 System.out.println(e);
@@ -140,18 +141,41 @@ public class Controller {
     }
 
     @FXML
-    public void handleButtonClick(ActionEvent e) {
-        enumTextArea.setText("");
-        System.out.println("button pressed: " + e.toString());
+    public void handleButtonClick(ActionEvent e) throws InterruptedException {
         ObservableList<PingParrallel.PingResult> results = ipListView.getSelectionModel().getSelectedItems();  // get PingResult objects from ListView
-        String buttonName = ((Button)e.getSource()).getText();  // get button name
+        String buttonName = ((Button) e.getSource()).getText();  // get button name
         String script = scripts.getScript(buttonName);
-        WmiParrallel wmi = new WmiParrallel(buttonName, script, results);  // call wmi constructor
-        // don't think this line is needed because the wmi class loops over the results to build callables
-        while(wmi.getThreadsDone().equals(false)) {}  // loop while threads are still running
-        enumTextArea.setText(wmi.getFutureResults()); // writes the callable toString() to the text area
-        // write to db from here?
-        wmi.setThreadsDone(false);
+        try {
+            String str = ((WmiParrallel) wmi_service).getFutureResults();
+            enumTextArea.setText(str); // writes the callable toString() to the text area
+        } catch (Exception ex1) {
+            System.out.println(ex1);
+        }
+        wmi_service = new WmiParrallel(buttonName, script, results);
+        wmi_service.start();
+        try {
+            if (wmi_service.getState() == Service.State.READY) {
+                System.out.println("in the ready");
+            } else if (wmi_service.getState() == Service.State.SUCCEEDED) {
+                System.out.println("in the succeed");
+                String str = ((WmiParrallel) wmi_service).getFutureResults();
+                enumTextArea.setText(str); // writes the callable toString() to the text area
+                wmi_service.reset();
+                wmi_service.start();
+            } else if(wmi_service.getState() == Service.State.RUNNING) {
+                System.out.println("in the running");
+            } else {
+                System.out.println(wmi_service.getState());
+                Thread.sleep(1000);
+            }
+//        System.out.println("button pressed: " + e.toString());
+
+        } catch (Exception ex) {
+            System.out.println(ex);
+        } finally {
+            String str = ((WmiParrallel) wmi_service).getFutureResults();
+            enumTextArea.setText(str); // writes the callable toString() to the text area
+        }
     }
 
 

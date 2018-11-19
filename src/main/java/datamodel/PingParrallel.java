@@ -39,7 +39,7 @@ public class PingParrallel extends Service<ObservableList<PingParrallel.PingResu
     // methods
     @Override
     protected Task<ObservableList<PingResult>> createTask() {
-        return new Task<ObservableList<PingResult>>() {
+        return new Task<>() {
             @Override
             protected ObservableList<PingResult> call() throws Exception {
                 try {
@@ -52,7 +52,6 @@ public class PingParrallel extends Service<ObservableList<PingParrallel.PingResu
                 return aliveHosts;  // return observable list to binded value in controller
             }
         };
-
     }
 
     public void shutPoolDown() {
