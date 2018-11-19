@@ -45,7 +45,7 @@ public class WmiParrallel extends Service<String> {
 
     public WmiParrallel() {}
 
-    public String getFutureResults() {
+    public synchronized String getFutureResults() {
         return futureResults.toString();
     }
 
@@ -62,9 +62,10 @@ public class WmiParrallel extends Service<String> {
 
                 try {
                     for (PingParrallel.PingResult result : pingResults) {
-//                        callables.add(new PSCommand(result, command));
-                         future = pool.submit(new PSCommand(result, command));
-                         futureResults.add(future.get());
+                        callables.add(new PSCommand(result, command));
+//                         future = pool.submit(new PSCommand(result, command));  // don't delete this works
+//                         futureResults.add(future.get());
+                        futures = pool.invokeAll(callables);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -75,7 +76,12 @@ public class WmiParrallel extends Service<String> {
 ////                    System.out.println(future.get());
 //                }
 //                return futureResults.toString();  // still empty
-                return future.get();
+                for(Future<String> future: futures) {
+                    futureResults.add(future.get());
+                }
+                return futureResults.toString();
+//                return future;
+
             }
 
         };

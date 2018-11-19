@@ -94,6 +94,7 @@ public class PingParrallel extends Service<ObservableList<PingParrallel.PingResu
 
         public void setHostname(String hostname) {
             this.hostname = hostname;
+
         }
 
         public PingResult call() {

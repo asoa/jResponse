@@ -1,4 +1,5 @@
 import datamodel.*;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Worker;
@@ -137,6 +138,7 @@ public class Controller {
             ipTextField.setDisable(false);
         } else {
             ipTextField.setDisable(true);
+
         }
     }
 
@@ -147,6 +149,7 @@ public class Controller {
         String script = scripts.getScript(buttonName);
         try {
             String str = ((WmiParrallel) wmi_service).getFutureResults();
+            System.out.println("in first try/catch");
             enumTextArea.setText(str); // writes the callable toString() to the text area
         } catch (Exception ex1) {
             System.out.println(ex1);
@@ -166,13 +169,14 @@ public class Controller {
                 System.out.println("in the running");
             } else {
                 System.out.println(wmi_service.getState());
-                Thread.sleep(1000);
+                Thread.sleep(5000);
             }
 //        System.out.println("button pressed: " + e.toString());
 
         } catch (Exception ex) {
             System.out.println(ex);
         } finally {
+//            enumTextArea.textProperty().bind(wmi_service);
             String str = ((WmiParrallel) wmi_service).getFutureResults();
             enumTextArea.setText(str); // writes the callable toString() to the text area
         }
