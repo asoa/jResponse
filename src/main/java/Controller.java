@@ -11,6 +11,7 @@ import javafx.scene.layout.BorderPane;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 
 public class Controller {
     @FXML
@@ -63,7 +64,6 @@ public class Controller {
 
         // bind the service returned observable list to the listview
         ping_service = new PingParrallel(networkDiscovery.getHostList());
-
 //        ((PingParrallel) ping_service).getAliveHosts();
         ipTable.itemsProperty().bind(ping_service.valueProperty());
         TableColumn<PingParrallel.PingResult, String> ipAddress = new TableColumn<PingParrallel.PingResult, String>("Reachable Hosts");
@@ -72,6 +72,12 @@ public class Controller {
         hostname.setCellValueFactory(new PropertyValueFactory("hostname"));
         ipTable.getColumns().setAll(ipAddress,hostname);
         ipListView.itemsProperty().bind(ping_service.valueProperty()); // updates the Enumeration tab ip list
+        try {
+            enumTextArea.textProperty().bind(wmi_service.valueProperty());
+
+        } catch(Exception e) {
+            System.out.println("Nothing to bind yet in textarea: " + e);
+        }
 
         // get db info
 //        Scanner s = new Scanner(System.in);
@@ -109,7 +115,6 @@ public class Controller {
     // calls PingParrallel when scan button is selected
     @FXML
     public void onScanSelected() {
-
         if(ping_service.getState() == Service.State.SUCCEEDED) {
             try {
                 ObservableList<PingParrallel.PingResult> pingResults = ((PingParrallel) ping_service).getAliveHosts();
@@ -147,38 +152,47 @@ public class Controller {
         ObservableList<PingParrallel.PingResult> results = ipListView.getSelectionModel().getSelectedItems();  // get PingResult objects from ListView
         String buttonName = ((Button) e.getSource()).getText();  // get button name
         String script = scripts.getScript(buttonName);
-        try {
-            String str = ((WmiParrallel) wmi_service).getFutureResults();
-            System.out.println("in first try/catch");
-            enumTextArea.setText(str); // writes the callable toString() to the text area
-        } catch (Exception ex1) {
-            System.out.println(ex1);
-        }
-        wmi_service = new WmiParrallel(buttonName, script, results);
-        wmi_service.start();
+
+//        try {
+//            String str = ((WmiParrallel) wmi_service).getFutureResults();
+//            System.out.println("in first try/catch");
+//            enumTextArea.setText(str); // writes the callable toString() to the text area
+//        } catch (Exception ex1) {
+//            System.out.println(ex1);
+//        }
+//        wmi_service = new WmiParrallel(buttonName, script, results);
+
         try {
             if (wmi_service.getState() == Service.State.READY) {
-                System.out.println("in the ready");
+                System.out.println("\nin the ready state");
+                wmi_service.start();
             } else if (wmi_service.getState() == Service.State.SUCCEEDED) {
-                System.out.println("in the succeed");
-                String str = ((WmiParrallel) wmi_service).getFutureResults();
-                enumTextArea.setText(str); // writes the callable toString() to the text area
+                System.out.println("\nin the succeed state");
+//                String str = ((WmiParrallel) wmi_service).getFutureResults();
+//                enumTextArea.setText(str); // writes the callable toString() to the text area
                 wmi_service.reset();
+                wmi_service = new WmiParrallel(buttonName, script, results);
                 wmi_service.start();
             } else if(wmi_service.getState() == Service.State.RUNNING) {
-                System.out.println("in the running");
+                System.out.println("\nin the running state");
+            } else if(wmi_service.getState() == Service.State.SCHEDULED) {
+                System.out.println("\nin the scheduled state");
             } else {
-                System.out.println(wmi_service.getState());
-                Thread.sleep(5000);
+                System.out.println("\n" + wmi_service.getState());
+                wmi_service = new WmiParrallel(buttonName, script, results);
+                wmi_service.start();
+//                Thread.sleep(5000);
             }
 //        System.out.println("button pressed: " + e.toString());
 
         } catch (Exception ex) {
+            wmi_service = new WmiParrallel(buttonName, script, results);
+            wmi_service.start();
             System.out.println(ex);
         } finally {
-//            enumTextArea.textProperty().bind(wmi_service);
-            String str = ((WmiParrallel) wmi_service).getFutureResults();
-            enumTextArea.setText(str); // writes the callable toString() to the text area
+            enumTextArea.textProperty().bind(wmi_service.valueProperty());
+//            String str = ((WmiParrallel) wmi_service).getFutureResults();
+//            enumTextArea.setText(str); // writes the callable toString() to the text area
         }
     }
 

@@ -1,5 +1,6 @@
 package datamodel;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -40,12 +41,12 @@ public class WmiParrallel extends Service<String> {
         pool = Executors.newFixedThreadPool(THREADCOUNT);
         callables = new ArrayList<>();
         futures = new ArrayList<>();
-        futureResults = new ArrayList<>();
+        futureResults = new ArrayList<String>();
     }
 
     public WmiParrallel() {}
 
-    public synchronized String getFutureResults() {
+    public String getFutureResults() {
         return futureResults.toString();
     }
 
@@ -68,7 +69,7 @@ public class WmiParrallel extends Service<String> {
                         futures = pool.invokeAll(callables);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.out.println("Error in createTask" + e);
                 }
 //                futures = pool.invokeAll(callables);  //  succeeds here with successful state
 //                for(Future<String> future: futures) {
