@@ -92,7 +92,6 @@ public class WmiParrallel extends Service<String> {
 
         };
     }
-
 //    class PSCommand implements Callable<String> {
     class PSCommand implements Callable<String> {
         // instance vars

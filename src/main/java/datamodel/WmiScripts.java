@@ -38,8 +38,6 @@ public class WmiScripts {
         return sb.toString();
     }
 
-
-
 //    public static void main(String[] args) {
 //        WmiScripts wmi = new WmiScripts();
 //        System.out.println(wmi.getScript("Running Programs"));

@@ -153,15 +153,6 @@ public class Controller {
         String buttonName = ((Button) e.getSource()).getText();  // get button name
         String script = scripts.getScript(buttonName);
 
-//        try {
-//            String str = ((WmiParrallel) wmi_service).getFutureResults();
-//            System.out.println("in first try/catch");
-//            enumTextArea.setText(str); // writes the callable toString() to the text area
-//        } catch (Exception ex1) {
-//            System.out.println(ex1);
-//        }
-//        wmi_service = new WmiParrallel(buttonName, script, results);
-
         try {
             if (wmi_service.getState() == Service.State.READY) {
                 System.out.println("\nin the ready state");
