@@ -168,6 +168,7 @@ public class Controller {
                 wmi_service.start();
             } else if (wmi_service.getState() == Service.State.SUCCEEDED) {
                 System.out.println("\nin the succeed state");
+                db_conn.dbProcessInsert(((WmiParrallel) wmi_service).getWmiResults());
 //                String str = ((WmiParrallel) wmi_service).getFutureResults();
 //                enumTextArea.setText(str); // writes the callable toString() to the text area
                 wmi_service.reset();

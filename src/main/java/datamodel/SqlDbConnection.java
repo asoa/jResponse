@@ -2,9 +2,15 @@ package datamodel;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.css.Match;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 // TODO: turn into a service
 
@@ -99,5 +105,38 @@ public class SqlDbConnection extends Service {
         System.out.printf("Inserted %d records to computer table\n", recordsAdded);
     }
 
+    public void dbProcessInsert(Map<String, List<String>> hostProcessDict) {
+        String host;
+        List<String> sublist;
+        System.out.printf("Attempting to insert: %d records into process table\n", hostProcessDict.size());
+        for(Map.Entry<String, List<String>> entry: hostProcessDict.entrySet()) {
+            host = entry.getKey();
+            sublist = entry.getValue().subList(3, entry.getValue().size());
+            for(String s: sublist) {
+                try {
+                    List<String> pid_process = getMatch(s);
+                    System.out.printf("Host: %s, ProcessID:%s, ProcesName:%s\n", host, pid_process.get(0), pid_process.get(1));
+                } catch (Exception e) {
+                    System.out.println("Error in getMatch(): " + e);
+                    continue;
+                }
+            }
+        }
+    }
+
+    public List<String> getMatch(String s) {
+        List<String> matches = new ArrayList<>();
+
+        Pattern patternObj = Pattern.compile("(\\d+)\\s+(\\w+.exe)");
+        Matcher match = patternObj.matcher(s);
+
+        if(match.find()) {
+            String pid = match.group(1);
+            String process = match.group(2);
+            matches.add(pid);
+            matches.add(process);
+        }
+        return matches;
+    }
     // getters and setters
 }

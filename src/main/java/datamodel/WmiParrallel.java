@@ -7,6 +7,7 @@ import javafx.concurrent.Task;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +27,7 @@ public class WmiParrallel extends Service<String> {
     private ExecutorService pool;
     private List<Callable<String>> callables;
     private String command;
-    private HashMap<String, String> wmiResults;
+    private Map<String, List<String>> wmiResults;
     private String wmiString;
     private List<Future<String>> futures;
     private List<String> futureResults;
@@ -40,8 +41,11 @@ public class WmiParrallel extends Service<String> {
         this.command = command;
         pool = Executors.newFixedThreadPool(THREADCOUNT);
         callables = new ArrayList<>();
+//        futures = new ArrayList<>();
         futures = new ArrayList<>();
-        futureResults = new ArrayList<String>();
+//        futureResults = new ArrayList<String>();
+        futureResults = new ArrayList<>();
+        wmiResults = new HashMap<>();
     }
 
     public WmiParrallel() {}
@@ -50,8 +54,8 @@ public class WmiParrallel extends Service<String> {
         return futureResults.toString();
     }
 
-    public boolean isDone() {
-        return isDone;
+    public Map<String, List<String>> getWmiResults() {  // returns dict of hostname:wmiResults
+        return wmiResults;
     }
 
     @Override
@@ -63,23 +67,21 @@ public class WmiParrallel extends Service<String> {
 
                 try {
                     for (PingParrallel.PingResult result : pingResults) {
+//                        future = pool.submit(new PSCommand(result, command));  // don't delete this works
+//                        futureResults.add(future.get() + "\n");
                         callables.add(new PSCommand(result, command));
-//                         future = pool.submit(new PSCommand(result, command));  // don't delete this works
-//                         futureResults.add(future.get());
-                        futures = pool.invokeAll(callables);
+
                     }
                 } catch (Exception e) {
                     System.out.println("Error in createTask" + e);
                 }
-//                futures = pool.invokeAll(callables);  //  succeeds here with successful state
-//                for(Future<String> future: futures) {
-//                    futureResults.add(future.get());
-////                    System.out.println(future.get());
-//                }
-//                return futureResults.toString();  // still empty
+                futures = pool.invokeAll(callables);
+
                 for(Future<String> future: futures) {
-                    futureResults.add(future.get());
+                    futureResults.add(future.get() + "\n");  // used to print output to text area in enumeration tab
+//                    wmiResults.put(future.)
                 }
+
                 return futureResults.toString();
 //                return future;
 
@@ -88,55 +90,57 @@ public class WmiParrallel extends Service<String> {
         };
     }
 
+//    class PSCommand implements Callable<String> {
     class PSCommand implements Callable<String> {
         // instance vars
         private String ip;
         private String hostname;
         private PingParrallel.PingResult result;
-        private String output;
+//        private String output;
+        private List<String> output;
         private BufferedReader stdout;
+        List<String> results;
         // constructor
         public PSCommand(PingParrallel.PingResult result, String command) {
-            this.ip = result.getIpAddress();
-            this.hostname = result.getHostname();
             this.result = result;
+            this.ip = this.result.getIpAddress();
+            this.hostname = this.result.getHostname();
+            output = new ArrayList<>();
+            results = new ArrayList<>();
         }
 
-        public String call() {
+//        public String call() {
+    public String call() {
             try {
                 Process powershellProcess = Runtime.getRuntime().exec("powershell.exe " + command);
                 powershellProcess.getOutputStream().close();  // closes the process output stream to prepare for buffered stream
                 stdout = new BufferedReader(new InputStreamReader(powershellProcess.getInputStream()));
                 String line;
-                String results="";
+//                String results="";
+//                List<String> results = new ArrayList<>();
                 while((line = stdout.readLine()) != null) {
-                    results += line + "\n";
-                    output = results;
+//                    results += line + "\n";
+                    results.add(line + "\n");
 //                    System.out.println(line);
+//                    output.add(line);
                 }
-                stdout.close();
+//                output.add(results);
+                wmiResults.put(hostname, results);  // add key:value to dict; used to write to db
+                stdout.close();  // close the stream
+
 
             } catch (Exception e) {
+                System.out.println("Error in call(): " + e);
                 e.printStackTrace();
             }
 //            wmiResults.put(result.getHostname(), output);
+//            return toString();
             return toString();
         }
 
-//        @Override
-//        public String toString() {
-//            return "PSCommand{" +
-//                    "buttonName=" + buttonName + '\'' +
-//                    "ip='" + ip + '\'' +
-//                    ", hostname='" + hostname + '\'' +
-//                    ", output=" + output +
-//                    '}';
-//        }
-
         @Override
         public String toString() {
-            String strFormat = "##### %s: %s #####\n" +
-                    output + "\n";
+            String strFormat = "##### %s: %s #####\n" + results;
             String result = String.format(strFormat, buttonName, hostname);
             System.out.println(result);
             return result;
