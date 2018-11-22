@@ -172,7 +172,7 @@ public class Controller {
 //                String str = ((WmiParrallel) wmi_service).getFutureResults();
 //                enumTextArea.setText(str); // writes the callable toString() to the text area
                 wmi_service.reset();
-                wmi_service = new WmiParrallel(buttonName, script, results);
+                wmi_service = new WmiParrallel(buttonName, results);
                 wmi_service.start();
             } else if(wmi_service.getState() == Service.State.RUNNING) {
                 System.out.println("\nin the running state");
@@ -180,14 +180,14 @@ public class Controller {
                 System.out.println("\nin the scheduled state");
             } else {
                 System.out.println("\n" + wmi_service.getState());
-                wmi_service = new WmiParrallel(buttonName, script, results);
+                wmi_service = new WmiParrallel(buttonName, results);
                 wmi_service.start();
 //                Thread.sleep(5000);
             }
 //        System.out.println("button pressed: " + e.toString());
 
         } catch (Exception ex) {
-            wmi_service = new WmiParrallel(buttonName, script, results);
+            wmi_service = new WmiParrallel(buttonName, results);
             wmi_service.start();
             System.out.println(ex);
         } finally {

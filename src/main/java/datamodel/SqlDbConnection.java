@@ -56,7 +56,15 @@ public class SqlDbConnection extends Service {
                     "CREATE TABLE computer(" +
                             "hostName VARCHAR(30) NOT NULL," +
                             "ipAddress VARCHAR(30) NOT NULL," +
-                            "CONSTRAINT candidate_pk PRIMARY KEY(hostName));";
+                            "CONSTRAINT computer_pk PRIMARY KEY(hostName));";
+            statement.execute(createTable);
+            createTable =
+                    "CREATE TABLE processLog(" +
+                            "hostName VARCHAR(30) NOT NULL," +
+                            "processId CHAR(5) NOT NULL," +
+                            "processName VARCHAR(30) NOT NULL," +
+                            "CONSTRAINT process_pk PRIMARY KEY(processId,hostName)," +
+                            "CONSTRAINT process_fk FOREIGN KEY(hostName) REFERENCES computer);";
             statement.execute(createTable);
             return true;
         } catch(SQLException e) {
@@ -108,20 +116,38 @@ public class SqlDbConnection extends Service {
     public void dbProcessInsert(Map<String, List<String>> hostProcessDict) {
         String host;
         List<String> sublist;
-        System.out.printf("Attempting to insert: %d records into process table\n", hostProcessDict.size());
+        int recordCount = 0;
+        String strFormat =
+                "IF NOT EXISTS\n" +
+                        "(SELECT 1 FROM processLog WHERE processId = '%s')\n" +
+                        "BEGIN\n" +
+                        "INSERT INTO dbo.processLog (hostName, processId, processName) VALUES ('%s','%s','%s')\n" +
+                        "END\n";
         for(Map.Entry<String, List<String>> entry: hostProcessDict.entrySet()) {
-            host = entry.getKey();
-            sublist = entry.getValue().subList(3, entry.getValue().size());
-            for(String s: sublist) {
-                try {
-                    List<String> pid_process = getMatch(s);
-                    System.out.printf("Host: %s, ProcessID:%s, ProcesName:%s\n", host, pid_process.get(0), pid_process.get(1));
-                } catch (Exception e) {
-                    System.out.println("Error in getMatch(): " + e);
-                    continue;
+            host = entry.getKey(); // get hostname
+            sublist = entry.getValue().subList(3, entry.getValue().size());  // get list of processes
+            try (Statement statement = conn.createStatement()){
+                for(String s: sublist) {  // iterate over processes in sublist
+                    try {
+                        List<String> pid_process = getMatch(s);
+                        if (pid_process.size() == 0) {
+                            continue;
+                        } else {
+                            String insertSQL = String.format(strFormat, pid_process.get(0), host, pid_process.get(0), pid_process.get(1));
+                            statement.execute(insertSQL);
+//                        System.out.printf("Host: %s, ProcessID:%s, ProcesName:%s\n", host, pid_process.get(0), pid_process.get(1));
+                            recordCount++;
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Error in getMatch(): " + e);
+                        continue;
+                    }
                 }
+            } catch (Exception e) {
+                System.out.println("Error in dbProcessInsert() " + e);
             }
         }
+        System.out.printf("Inserted %d records into the process table\n", recordCount);
     }
 
     public List<String> getMatch(String s) {

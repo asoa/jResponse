@@ -2,7 +2,9 @@ package datamodel;
 
 // Singleton class to create hash map of scripts that correspond to button names on the enumeration tab
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class WmiScripts {
@@ -27,6 +29,16 @@ public class WmiScripts {
     public String getScript(String scriptName) {  // returns script from hash map to caller
         return scripts.get(scriptName);
     }
+
+    public String getScript(String scriptName, String hostName) {  // returns script from hash map to caller
+        String[] computerName = hostName.split("\\.",2);
+        StringBuilder sb = new StringBuilder(scripts.get(scriptName));
+        String host = "-ComputerName " + computerName[0] + " ";
+        sb.insert(16, host);
+        return sb.toString();
+    }
+
+
 
 //    public static void main(String[] args) {
 //        WmiScripts wmi = new WmiScripts();

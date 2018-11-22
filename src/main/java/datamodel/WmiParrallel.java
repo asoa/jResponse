@@ -31,11 +31,12 @@ public class WmiParrallel extends Service<String> {
     private String wmiString;
     private List<Future<String>> futures;
     private List<String> futureResults;
+    private WmiScripts scripts;
     private boolean isDone = false;
 
 
     // constructor
-    public WmiParrallel(String buttonName, String command, ObservableList<PingParrallel.PingResult> pingResults) {
+    public WmiParrallel(String buttonName, ObservableList<PingParrallel.PingResult> pingResults) {
         this.pingResults = pingResults;
         this.buttonName = buttonName;
         this.command = command;
@@ -46,6 +47,7 @@ public class WmiParrallel extends Service<String> {
 //        futureResults = new ArrayList<String>();
         futureResults = new ArrayList<>();
         wmiResults = new HashMap<>();
+        scripts = new WmiScripts();
     }
 
     public WmiParrallel() {}
@@ -67,6 +69,7 @@ public class WmiParrallel extends Service<String> {
 
                 try {
                     for (PingParrallel.PingResult result : pingResults) {
+                        command = scripts.getScript(buttonName, result.getHostname());
 //                        future = pool.submit(new PSCommand(result, command));  // don't delete this works
 //                        futureResults.add(future.get() + "\n");
                         callables.add(new PSCommand(result, command));
