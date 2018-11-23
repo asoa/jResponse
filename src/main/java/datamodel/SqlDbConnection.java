@@ -79,6 +79,15 @@ public class SqlDbConnection extends Service {
                             "CONSTRAINT computerInfo_pk PRIMARY KEY(ID)," +
                             "CONSTRAINT computerInfo_fk FOREIGN KEY(hostName) REFERENCES computer);";
             statement.execute(createTable);
+            createTable =
+                    "CREATE TABLE networkConnections(" +
+                            "ID int IDENTITY(1,1)," +
+                            "localAddress VARCHAR(15) NOT NULL," +
+                            "localPort CHAR(5) NOT NULL," +
+                            "remoteAddress VARCHAR(15) NOT NULL," +
+                            "remotePort CHAR(5) NOT NULL," +
+                            "CONSTRAINT networkConnections_pk PRIMARY KEY(ID));";
+            statement.execute(createTable);
             return true;
         } catch(SQLException e) {
             System.out.println(e);

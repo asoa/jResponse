@@ -39,7 +39,6 @@ public class WmiParrallel extends Service<String> {
     public WmiParrallel(String buttonName, ObservableList<PingParrallel.PingResult> pingResults) {
         this.pingResults = pingResults;
         this.buttonName = buttonName;
-        this.command = command;
         pool = Executors.newFixedThreadPool(THREADCOUNT);
         callables = new ArrayList<>();
 //        futures = new ArrayList<>();

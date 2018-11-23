@@ -27,47 +27,52 @@ public class InsertNetworkConnections {
         int recordCount = 0;
         String strFormat =
                 "IF NOT EXISTS\n" +
-                        "(SELECT 1 FROM computerInfo WHERE hostName = '%s')\n" +
+                        "(SELECT 1 FROM networkConnections WHERE localPort = '%s' AND remotePort = '%s')\n" +
                         "BEGIN\n" +
-                        "INSERT INTO dbo.computerInfo (osName, osVersion, servicePackVersion, osArch, hostName) VALUES ('%s','%s','%s','%s','%s')\n" +
+                        "INSERT INTO dbo.networkConnections (localAddress,localPort,remoteAddress,remotePort) VALUES ('%s','%s','%s','%s')\n" +
                         "END\n";
         for(Map.Entry<String, List<String>> entry: wmiResults.entrySet()) {
             host = entry.getKey(); // get hostname
             sublist = entry.getValue().subList(3,entry.getValue().size()-2);
             try(Statement statement = conn.createStatement()) {
-                List<String> values = new ArrayList<>(getMatch(sublist));
-                String hostName = (values.get(4) + ".home.mylocal").toLowerCase();
-                String insertSQL = String.format(strFormat,hostName,values.get(0),values.get(1),values.get(2),values.get(3),hostName);
-                statement.execute(insertSQL);
-                recordCount++;
-//                System.out.println(s);
+                for(String s: sublist) {
+                    try {
+                        List<String> values = new ArrayList<>(getMatch(s));
+                        if(values.size() == 4) {
+                            String insertSQL = String.format(strFormat,values.get(1),values.get(3),values.get(0),values.get(1),values.get(2),values.get(3));
+                            statement.execute(insertSQL);
+                            recordCount++;
+                        } else {
+                            continue;
+                        }
 
+                    } catch (Exception e) {
+                        System.out.println(e);
+                    }
+                }
             } catch (Exception e) {
-                System.out.println("Error in insertDB computerInfo " + e);
+                System.out.println("Error in insertDB networkConnections " + e);
             }
         }
-        System.out.printf("Inserted %d records into the computerInfo table\n", recordCount);
+        System.out.printf("Inserted %d records into the networkConnections table\n", recordCount);
         return true;
     }
 
-    public List<String> getMatch(List<String> list) {
+    public List<String> getMatch(String line) {
         List<String> matches = new ArrayList<>();
-
-        Pattern patternObj = Pattern.compile(":\\s+(.*$)");
+        Pattern patternObj = Pattern.compile("(\\d+.\\d+.\\d+.\\d+)\\s+(\\d+)\\s+(\\d+.\\d+.\\d+.\\d+)\\s+(\\d+)");
 
         try {
-            Iterator<String> it = list.iterator();
-            while(it.hasNext()) {
-                Matcher match = patternObj.matcher(it.next());
-                if(match.find()) {
-                    matches.add(match.group(1));
-                }
+            Matcher match = patternObj.matcher(line);
+            if(match.find()) {
+                matches.add(match.group(1));
+                matches.add(match.group(2));
+                matches.add(match.group(3));
+                matches.add(match.group(4));
             }
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("Error in InsertNetworkConnections::getMatch() " + e);
         }
         return matches;
     }
-
-
 }
