@@ -101,6 +101,7 @@ public class WmiParrallel extends Service<String> {
         private List<String> output;
         private BufferedReader stdout;
         List<String> results;
+        private String command;
         // constructor
         public PSCommand(PingParrallel.PingResult result, String command) {
             this.result = result;
@@ -108,6 +109,7 @@ public class WmiParrallel extends Service<String> {
             this.hostname = this.result.getHostname();
             output = new ArrayList<>();
             results = new ArrayList<>();
+            this.command = command;
         }
 
 //        public String call() {
