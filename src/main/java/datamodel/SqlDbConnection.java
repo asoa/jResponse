@@ -23,6 +23,7 @@ public class SqlDbConnection extends Service {
     private String dbName;
     private String port;
     private Connection conn;
+    private String buttonName;
 
     // constructor
     public SqlDbConnection(String serverIp, String userName, String password, String dbName) throws ClassNotFoundException{
@@ -66,6 +67,17 @@ public class SqlDbConnection extends Service {
                             "processName VARCHAR(30) NOT NULL," +
                             "CONSTRAINT process_pk PRIMARY KEY(processId,hostName)," +
                             "CONSTRAINT process_fk FOREIGN KEY(hostName) REFERENCES computer);";
+            statement.execute(createTable);
+            createTable =
+                    "CREATE TABLE computerInfo(" +
+                            "ID int IDENTITY(1,1)," +
+                            "osName VARCHAR(100) NOT NULL," +
+                            "osVersion VARCHAR(30) NOT NULL," +
+                            "servicePackVersion CHAR(5) NOT NULL," +
+                            "osArch VARCHAR(10) NOT NULL," +
+                            "hostName VARCHAR(30) NOT NULL," +
+                            "CONSTRAINT computerInfo_pk PRIMARY KEY(ID)," +
+                            "CONSTRAINT computerInfo_fk FOREIGN KEY(hostName) REFERENCES computer);";
             statement.execute(createTable);
             return true;
         } catch(SQLException e) {
@@ -114,56 +126,82 @@ public class SqlDbConnection extends Service {
         System.out.printf("Inserted %d records to computer table\n", recordsAdded);
     }
 
-    public void dbProcessInsert(Map<String, List<String>> hostProcessDict) {
-        String host;
-        List<String> sublist;
-        int recordCount = 0;
-        String strFormat =
-                "IF NOT EXISTS\n" +
-                        "(SELECT 1 FROM processLog WHERE processId = '%s')\n" +
-                        "BEGIN\n" +
-                        "INSERT INTO dbo.processLog (hostName, processId, processName) VALUES ('%s','%s','%s')\n" +
-                        "END\n";
-        for(Map.Entry<String, List<String>> entry: hostProcessDict.entrySet()) {
-            host = entry.getKey(); // get hostname
-            sublist = entry.getValue().subList(3, entry.getValue().size());  // get list of processes
-            try (Statement statement = conn.createStatement()){
-                for(String s: sublist) {  // iterate over processes in sublist
-                    try {
-                        List<String> pid_process = getMatch(s);
-                        if (pid_process.size() == 0) {
-                            continue;
-                        } else {
-                            String insertSQL = String.format(strFormat, pid_process.get(0), host, pid_process.get(0), pid_process.get(1));
-                            statement.execute(insertSQL);
-//                        System.out.printf("Host: %s, ProcessID:%s, ProcesName:%s\n", host, pid_process.get(0), pid_process.get(1));
-                            recordCount++;
-                        }
-                    } catch (Exception e) {
-                        System.out.println("Error in getMatch(): " + e);
-                        continue;
-                    }
-                }
-            } catch (Exception e) {
-                System.out.println("Error in dbProcessInsert() " + e);
-            }
+    public void insertDB(String buttonName, Map<String, List<String>> wmiResults) {
+        switch(buttonName) {
+            case "Running Programs": insertProcess(wmiResults);
+                break;
+            case "Computer Info": insertComputerInfo(wmiResults);
+                break;
+            case "Network Connections": insertNetworkConnections(wmiResults);
+            default:
+                break;
         }
-        System.out.printf("Inserted %d records into the process table\n", recordCount);
     }
 
-    public List<String> getMatch(String s) {
-        List<String> matches = new ArrayList<>();
-
-        Pattern patternObj = Pattern.compile("(\\d+)\\s+(\\w+.exe)");
-        Matcher match = patternObj.matcher(s);
-
-        if(match.find()) {
-            String pid = match.group(1);
-            String process = match.group(2);
-            matches.add(pid);
-            matches.add(process);
-        }
-        return matches;
+    public void insertProcess(Map<String, List<String>> wmiResults) {
+        InsertProcess insertProcess = new InsertProcess(conn, wmiResults);
     }
+
+    public void insertComputerInfo(Map<String, List<String>> wmiResults) {
+        InsertComputerInfo insertComputerInfo = new InsertComputerInfo(conn, wmiResults);
+    }
+
+    public void insertNetworkConnections (Map<String, List<String>> wmiResults) {
+        InsertNetworkConnections insertNetworkConnections = new InsertNetworkConnections(conn, wmiResults);
+    }
+
+
+//    public void dbProcessInsert(Map<String, List<String>> hostProcessDict) {
+//        String host;
+//        List<String> sublist;
+//        int recordCount = 0;
+//        String strFormat =
+//                "IF NOT EXISTS\n" +
+//                        "(SELECT 1 FROM processLog WHERE processId = '%s')\n" +
+//                        "BEGIN\n" +
+//                        "INSERT INTO dbo.processLog (hostName, processId, processName) VALUES ('%s','%s','%s')\n" +
+//                        "END\n";
+//        for(Map.Entry<String, List<String>> entry: hostProcessDict.entrySet()) {
+//            host = entry.getKey(); // get hostname
+//            sublist = entry.getValue().subList(3, entry.getValue().size());  // get list of processes
+//            try (Statement statement = conn.createStatement()){
+//                for(String s: sublist) {  // iterate over processes in sublist
+//                    try {
+//                        List<String> pid_process = getMatch(s);
+//                        if (pid_process.size() == 0) {
+//                            continue;
+//                        } else {
+//                            String insertSQL = String.format(strFormat, pid_process.get(0), host, pid_process.get(0), pid_process.get(1));
+//                            statement.execute(insertSQL);
+////                        System.out.printf("Host: %s, ProcessID:%s, ProcesName:%s\n", host, pid_process.get(0), pid_process.get(1));
+//                            recordCount++;
+//                        }
+//                    } catch (Exception e) {
+//                        System.out.println("Error in getMatch(): " + e);
+//                        continue;
+//                    }
+//                }
+//            } catch (Exception e) {
+//                System.out.println("Error in dbProcessInsert() " + e);
+//            }
+//        }
+//        System.out.printf("Inserted %d records into the process table\n", recordCount);
+//    }
+
+
+//    public List<String> getMatch(String s) {
+//        List<String> matches = new ArrayList<>();
+//
+//        Pattern patternObj = Pattern.compile("(\\d+)\\s+(\\w+.exe)");
+//        Matcher match = patternObj.matcher(s);
+//
+//        if(match.find()) {
+//            String pid = match.group(1);
+//            String process = match.group(2);
+//            matches.add(pid);
+//            matches.add(process);
+//        }
+//        return matches;
+//    }
     // getters and setters
 }

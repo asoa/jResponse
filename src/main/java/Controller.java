@@ -151,7 +151,7 @@ public class Controller {
     public void handleButtonClick(ActionEvent e) throws InterruptedException {
         ObservableList<PingParrallel.PingResult> results = ipListView.getSelectionModel().getSelectedItems();  // get PingResult objects from ListView
         String buttonName = ((Button) e.getSource()).getText();  // get button name
-        String script = scripts.getScript(buttonName);
+//        String script = scripts.getScript(buttonName);
 
         try {
             if (wmi_service.getState() == Service.State.READY) {
@@ -159,7 +159,8 @@ public class Controller {
                 wmi_service.start();
             } else if (wmi_service.getState() == Service.State.SUCCEEDED) {
                 System.out.println("\nin the succeed state");
-                db_conn.dbProcessInsert(((WmiParrallel) wmi_service).getWmiResults());
+                db_conn.insertDB(buttonName, ((WmiParrallel) wmi_service).getWmiResults());
+
 //                String str = ((WmiParrallel) wmi_service).getFutureResults();
 //                enumTextArea.setText(str); // writes the callable toString() to the text area
                 wmi_service.reset();

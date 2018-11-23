@@ -20,17 +20,26 @@ public class WmiScripts {
     // methods
     public void addScripts() {
         scripts.put("Running Programs", "Get-CimInstance -Query \'SELECT * from Win32_Process\' | Select-Object ProcessID, Name");
+        scripts.put("Computer Info", "Get-CimInstance -Query \'SELECT * FROM Win32_OperatingSystem\' | Select-Object Caption,Version,ServicePackMajorVersion,OSArchitecture,CSName");
+        scripts.put("Network Connections", "Invoke-Command -ComputerName {Get-NetTCPConnection -State Established | Select-Object LocalAddress,LocalPort,RemoteAddress,RemotePort | Format-Table -AutoSize}");
 //        scripts.put("Running Programs", "Get-CimInstance -Query \'SELECT * from Win32_Process\' ");
 //        scripts.put("Running Programs", "Get-Process | Select-Object Id, ProcessName");
 //        scripts.put("Running Programs", "Get-Process");  // works
     }
 
     // getters and setters
-    public String getScript(String scriptName) {  // returns script from hash map to caller
-        return scripts.get(scriptName);
-    }
+//    public String getScript(String scriptName) {  // returns script from hash map to caller
+//        return scripts.get(scriptName);
+//    }
 
     public String getScript(String scriptName, String hostName) {  // returns script from hash map to caller
+        if(scriptName.equals("Network Connections")) {
+            String[] computerName = hostName.split("\\.",2);
+            StringBuilder sb = new StringBuilder(scripts.get(scriptName));
+            String host = computerName[0] + " ";
+            sb.insert(29, host);
+            return sb.toString();
+        }
         String[] computerName = hostName.split("\\.",2);
         StringBuilder sb = new StringBuilder(scripts.get(scriptName));
         String host = "-ComputerName " + computerName[0] + " ";
