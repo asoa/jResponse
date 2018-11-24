@@ -177,6 +177,12 @@ public class SqlDbConnection extends Service {
         InsertLoggedOnUser insertLoggedOnUser = new InsertLoggedOnUser(conn, wmiResults);
     }
 
+    public String selectQuery (String buttonName) {
+        SelectQuery selectQuery = new SelectQuery(conn, buttonName);
+        String sqlQueryResults = selectQuery.getQueryResults();
+        return sqlQueryResults;
+    }
+
 
 //    public void dbProcessInsert(Map<String, List<String>> hostProcessDict) {
 //        String host;

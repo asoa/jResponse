@@ -44,6 +44,9 @@ public class Controller {
     @FXML
     private TextArea enumTextArea;
 
+    @FXML
+    private TextArea sqlOutput;
+
     private Service<ObservableList<PingParrallel.PingResult>> ping_service;
     private Service<String> wmi_service;
 
@@ -57,10 +60,10 @@ public class Controller {
 
     // creates a NetworkDiscovery instance that gets cidr information
     public void initialize() throws ClassNotFoundException {
+        sqlOutput.setStyle("-fx-font-family: monospace");
         networkDiscovery = new NetworkDiscovery();
         setIPRange(); // sets the cidr information in the drop down box
         ipListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);  // allows to select multiple ips
-
 
         // bind the service returned observable list to the listview
         ping_service = new PingParrallel(networkDiscovery.getHostList());
@@ -186,6 +189,21 @@ public class Controller {
             enumTextArea.textProperty().bind(wmi_service.valueProperty());
 //            String str = ((WmiParrallel) wmi_service).getFutureResults();
 //            enumTextArea.setText(str); // writes the callable toString() to the text area
+        }
+    }
+
+    @FXML
+    public void handleAnalysisButton(ActionEvent e) {
+        String buttonName = ((Button) e.getSource()).getText();  // get button name
+        String sqlOutputTextArea = db_conn.selectQuery(buttonName);
+        try {
+//            for(String row: sqlOutputTextArea) {
+//                sqlOutputTextArea.add(row);
+//                sqlOuput.setText();
+//            }
+            sqlOutput.setText(sqlOutputTextArea);
+        } catch (Exception ex) {
+            System.out.println("Error in handleAnalysisButton " + ex);
         }
     }
 

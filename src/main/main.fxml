@@ -128,7 +128,32 @@
                         </VBox>
                     </content>
                 </Tab>
-                <Tab text="Analysis" />
+                <Tab text="Analysis" >
+                    <content>
+                        <VBox prefHeight="200.0" prefWidth="100.0">
+                            <children>
+                                <HBox prefHeight="43.0" prefWidth="1006.0">
+                                    <children>
+                                        <Button onAction="#handleAnalysisButton" text="Inventory">
+                                            <HBox.margin>
+                                                <Insets right="10.0" />
+                                            </HBox.margin></Button>
+                                        <Button  onAction="#handleAnalysisButton" text="Find Remote Users">
+                                            <HBox.margin>
+                                                <Insets right="10.0" />
+                                            </HBox.margin></Button>
+                                        <Button text="Top Processes" />
+                                    </children>
+                                    <VBox.margin>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                    </VBox.margin>
+                                </HBox>
+                                <TextArea fx:id="sqlInput" prefHeight="150.0" prefWidth="200.0" />
+                                <TextArea fx:id="sqlOutput" prefHeight="300.0" prefWidth="200.0" />
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
             </tabs>
         </TabPane>
     </top>
