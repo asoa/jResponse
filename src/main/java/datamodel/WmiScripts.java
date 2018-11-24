@@ -21,7 +21,8 @@ public class WmiScripts {
     public void addScripts() {
         scripts.put("Running Programs", "Get-CimInstance -Query \'SELECT * from Win32_Process\' | Select-Object ProcessID, Name");
         scripts.put("Computer Info", "Get-CimInstance -Query \'SELECT * FROM Win32_OperatingSystem\' | Select-Object Caption,Version,ServicePackMajorVersion,OSArchitecture,CSName");
-        scripts.put("Network Connections", "Invoke-Command -ComputerName {Get-NetTCPConnection -State Established | Select-Object LocalAddress,LocalPort,RemoteAddress,RemotePort | Format-Table -AutoSize}");
+        scripts.put("Network Connections", "Invoke-Command -ComputerName {Get-NetTCPConnection -State Established | Select-Object LocalAddress,LocalPort,RemoteAddress,RemotePort,OwningProcess | Format-Table -AutoSize}");
+        scripts.put("Logged on User", "Get-CimInstance Win32_ComputerSystem -ComputerName | Select-Object PrimaryOwnerName");
 //        scripts.put("Running Programs", "Get-CimInstance -Query \'SELECT * from Win32_Process\' ");
 //        scripts.put("Running Programs", "Get-Process | Select-Object Id, ProcessName");
 //        scripts.put("Running Programs", "Get-Process");  // works
@@ -38,6 +39,12 @@ public class WmiScripts {
             StringBuilder sb = new StringBuilder(scripts.get(scriptName));
             String host = computerName[0] + " ";
             sb.insert(29, host);
+            return sb.toString();
+        } else if (scriptName.equals("Logged on User")) {
+            String[] computerName = hostName.split("\\.",2);
+            StringBuilder sb = new StringBuilder(scripts.get(scriptName));
+            String host = computerName[0] + " ";
+            sb.insert(51, host);
             return sb.toString();
         }
         String[] computerName = hostName.split("\\.",2);

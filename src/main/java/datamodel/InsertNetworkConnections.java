@@ -29,7 +29,7 @@ public class InsertNetworkConnections {
                 "IF NOT EXISTS\n" +
                         "(SELECT 1 FROM networkConnections WHERE localPort = '%s' AND remotePort = '%s')\n" +
                         "BEGIN\n" +
-                        "INSERT INTO dbo.networkConnections (localAddress,localPort,remoteAddress,remotePort) VALUES ('%s','%s','%s','%s')\n" +
+                        "INSERT INTO dbo.networkConnections (hostName,localAddress,localPort,remoteAddress,remotePort,owningProcess) VALUES ('%s','%s','%s','%s','%s','%s')\n" +
                         "END\n";
         for(Map.Entry<String, List<String>> entry: wmiResults.entrySet()) {
             host = entry.getKey(); // get hostname
@@ -38,8 +38,8 @@ public class InsertNetworkConnections {
                 for(String s: sublist) {
                     try {
                         List<String> values = new ArrayList<>(getMatch(s));
-                        if(values.size() == 4) {
-                            String insertSQL = String.format(strFormat,values.get(1),values.get(3),values.get(0),values.get(1),values.get(2),values.get(3));
+                        if(values.size() == 5) {
+                            String insertSQL = String.format(strFormat,values.get(1),values.get(3),host,values.get(0),values.get(1),values.get(2),values.get(3),values.get(4));
                             statement.execute(insertSQL);
                             recordCount++;
                         } else {
@@ -60,7 +60,7 @@ public class InsertNetworkConnections {
 
     public List<String> getMatch(String line) {
         List<String> matches = new ArrayList<>();
-        Pattern patternObj = Pattern.compile("(\\d+.\\d+.\\d+.\\d+)\\s+(\\d+)\\s+(\\d+.\\d+.\\d+.\\d+)\\s+(\\d+)");
+        Pattern patternObj = Pattern.compile("(\\d+.\\d+.\\d+.\\d+)\\s+(\\d+)\\s+(\\d+.\\d+.\\d+.\\d+)\\s+(\\d+)\\s+(\\d+)");
 
         try {
             Matcher match = patternObj.matcher(line);
@@ -69,6 +69,7 @@ public class InsertNetworkConnections {
                 matches.add(match.group(2));
                 matches.add(match.group(3));
                 matches.add(match.group(4));
+                matches.add(match.group(5));
             }
         } catch (Exception e) {
             System.out.println("Error in InsertNetworkConnections::getMatch() " + e);

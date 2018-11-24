@@ -82,11 +82,22 @@ public class SqlDbConnection extends Service {
             createTable =
                     "CREATE TABLE networkConnections(" +
                             "ID int IDENTITY(1,1)," +
+                            "hostName VARCHAR(30) NOT NULL," +
                             "localAddress VARCHAR(15) NOT NULL," +
                             "localPort CHAR(5) NOT NULL," +
                             "remoteAddress VARCHAR(15) NOT NULL," +
                             "remotePort CHAR(5) NOT NULL," +
-                            "CONSTRAINT networkConnections_pk PRIMARY KEY(ID));";
+                            "owningProcess CHAR(10) NOT NULL," +
+                            "CONSTRAINT networkConnections_pk PRIMARY KEY(ID)," +
+                            "CONSTRAINT networkConnections_fk FOREIGN KEY(hostName) REFERENCES computer);";
+            statement.execute(createTable);
+            createTable =
+                    "CREATE TABLE currentUser(" +
+                            "ID int IDENTITY(1,1)," +
+                            "hostName VARCHAR(30) NOT NULL," +
+                            "userName VARCHAR(15) NOT NULL," +
+                            "CONSTRAINT currentUser_pk PRIMARY KEY(ID)," +
+                            "CONSTRAINT currentUser_fk FOREIGN KEY(hostName) REFERENCES computer);";
             statement.execute(createTable);
             return true;
         } catch(SQLException e) {
@@ -142,6 +153,9 @@ public class SqlDbConnection extends Service {
             case "Computer Info": insertComputerInfo(wmiResults);
                 break;
             case "Network Connections": insertNetworkConnections(wmiResults);
+                break;
+            case "Logged on User": insertLoggedOnUser(wmiResults);
+                break;
             default:
                 break;
         }
@@ -157,6 +171,10 @@ public class SqlDbConnection extends Service {
 
     public void insertNetworkConnections (Map<String, List<String>> wmiResults) {
         InsertNetworkConnections insertNetworkConnections = new InsertNetworkConnections(conn, wmiResults);
+    }
+
+    public void insertLoggedOnUser (Map<String, List<String>> wmiResults) {
+        InsertLoggedOnUser insertLoggedOnUser = new InsertLoggedOnUser(conn, wmiResults);
     }
 
 

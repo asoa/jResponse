@@ -128,8 +128,7 @@
                         </VBox>
                     </content>
                 </Tab>
-                <Tab text="Event Log" />
-                <Tab text="Hunting" />
+                <Tab text="Analysis" />
             </tabs>
         </TabPane>
     </top>

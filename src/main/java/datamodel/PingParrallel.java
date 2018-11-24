@@ -102,7 +102,7 @@ public class PingParrallel extends Service<ObservableList<PingParrallel.PingResu
             try {
                 address = InetAddress.getByName(ipAddress);
                 ipObj.setHostname(address.getHostName());
-                hostname = ipObj.getHostname();
+                hostname = ipObj.getHostname().toLowerCase();
                 state = address.isReachable(TIMEOUT);  // Java implementation of ICMP ECHO REQUEST is sent to address
                 if (state) {
                     System.out.println(ipAddress + ": " + hostname + ": " + state);  // debug code

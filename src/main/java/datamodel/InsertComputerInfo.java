@@ -35,8 +35,9 @@ public class InsertComputerInfo {
             sublist = entry.getValue().subList(2,7);
             try(Statement statement = conn.createStatement()) {
                 List<String> values = new ArrayList<>(getMatch(sublist));
-                String hostName = (values.get(4) + ".home.mylocal").toLowerCase();
-                String insertSQL = String.format(strFormat,hostName,values.get(0),values.get(1),values.get(2),values.get(3),hostName);
+//                String hostName = (values.get(4) + ".home.mylocal").toLowerCase();
+//                String hostName = (values.get(4)).toLowerCase();
+                String insertSQL = String.format(strFormat,host,values.get(0),values.get(1),values.get(2),values.get(3),host);
                 statement.execute(insertSQL);
                 recordCount++;
 //                System.out.println(s);
