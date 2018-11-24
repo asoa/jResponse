@@ -47,6 +47,11 @@ public class Controller {
     @FXML
     private TextArea sqlOutput;
 
+    @FXML
+    private TextArea sqlInput;
+
+    private static String selectQuery;
+
     private Service<ObservableList<PingParrallel.PingResult>> ping_service;
     private Service<String> wmi_service;
 
@@ -61,6 +66,7 @@ public class Controller {
     // creates a NetworkDiscovery instance that gets cidr information
     public void initialize() throws ClassNotFoundException {
         sqlOutput.setStyle("-fx-font-family: monospace");
+        sqlInput.setStyle("-fx-font-family: monospace");
         networkDiscovery = new NetworkDiscovery();
         setIPRange(); // sets the cidr information in the drop down box
         ipListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);  // allows to select multiple ips
@@ -196,12 +202,14 @@ public class Controller {
     public void handleAnalysisButton(ActionEvent e) {
         String buttonName = ((Button) e.getSource()).getText();  // get button name
         String sqlOutputTextArea = db_conn.selectQuery(buttonName);
+        selectQuery = SelectQuery.getSelectQuery();
         try {
 //            for(String row: sqlOutputTextArea) {
 //                sqlOutputTextArea.add(row);
 //                sqlOuput.setText();
 //            }
             sqlOutput.setText(sqlOutputTextArea);
+            sqlInput.setText(selectQuery);
         } catch (Exception ex) {
             System.out.println("Error in handleAnalysisButton " + ex);
         }

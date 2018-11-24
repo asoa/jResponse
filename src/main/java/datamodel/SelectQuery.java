@@ -14,6 +14,7 @@ public class SelectQuery {
     private StringBuilder sb;
     String result;
     Formatter fmt;
+    private static String selectQuery;
 
     // constructor
     public SelectQuery(Connection conn, String buttonName) {
@@ -32,6 +33,10 @@ public class SelectQuery {
     // getter
     public String getQueryResults() {
         return result;
+    }
+
+    public static String getSelectQuery() {
+        return selectQuery;
     }
 
     // methods
@@ -72,8 +77,25 @@ public class SelectQuery {
             } catch (Exception e) {
                 System.out.println(e);
             }
+        } else if (buttonName.equals("Top Processes") || (buttonName.equals("Bottom Processes"))) {
+            try(Statement statement = conn.createStatement()) {
+                String strFormat = "%-30s %-5s\n";
+                resultSet = statement.executeQuery(query);
+                System.out.printf(strFormat,"Process Name","Process Count");
+                System.out.printf(strFormat,"------------","-------------");
+                fmt.format(strFormat,"Process Name","Process Count");
+                fmt.format(strFormat,"------------","-------------");
+                while(resultSet.next()) {
+                    System.out.printf(strFormat, resultSet.getString(1),resultSet.getString(2));
+                    fmt.format(strFormat, resultSet.getString(1),resultSet.getString(2));
+                    result = sb.toString();
+                }
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        } else {
+            return;
         }
-
     }
 
     public void createQueryRepo() {
@@ -90,11 +112,22 @@ public class SelectQuery {
                 "INNER JOIN processLog p\n" +
                 "ON n.owningProcess=p.processId\n" +
                 "WHERE n.localPort=\'3389\'\n";
+        String topProcesses = "SELECT TOP 20 processName,COUNT(processName) 'Top 20 Processes'\n" +
+                "FROM processLog \n" +
+                "GROUP BY processName\n" +
+                "ORDER BY 'Top 20 Processes' DESC\n";
+        String bottomProcesses = "SELECT TOP 20 processName,COUNT(processName) 'Bottom 20 Processes'\n" +
+                "FROM processLog \n" +
+                "GROUP BY processName\n" +
+                "ORDER BY 'Bottom 20 Processes' ASC\n";
         queryRepo.put("Inventory",inventory);
         queryRepo.put("Find Remote Users",remoteUsers);
+        queryRepo.put("Top Processes",topProcesses);
+        queryRepo.put("Bottom Processes",bottomProcesses);
     }
 
     public String getQueryString(String buttonName) {
+        selectQuery = queryRepo.get(buttonName);
         return queryRepo.get(buttonName);
     }
 }

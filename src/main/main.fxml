@@ -137,12 +137,23 @@
                                         <Button onAction="#handleAnalysisButton" text="Inventory">
                                             <HBox.margin>
                                                 <Insets right="10.0" />
-                                            </HBox.margin></Button>
+                                            </HBox.margin>
+                                        </Button>
                                         <Button  onAction="#handleAnalysisButton" text="Find Remote Users">
                                             <HBox.margin>
                                                 <Insets right="10.0" />
-                                            </HBox.margin></Button>
-                                        <Button text="Top Processes" />
+                                            </HBox.margin>
+                                        </Button>
+                                        <Button onAction="#handleAnalysisButton" text="Top Processes">
+                                            <HBox.margin>
+                                                <Insets right="10.0" />
+                                            </HBox.margin>
+                                        </Button>
+                                        <Button onAction="#handleAnalysisButton" text="Bottom Processes">
+                                            <HBox.margin>
+                                                <Insets right="10.0" />
+                                            </HBox.margin>
+                                        </Button>
                                     </children>
                                     <VBox.margin>
                                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
