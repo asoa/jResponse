@@ -15,7 +15,7 @@ public class Main extends Application {
         URL url = new File("src/main/main.fxml").toURI().toURL();
         Parent root = FXMLLoader.load(url);
         primaryStage.setTitle("JResponse");
-        primaryStage.setScene(new Scene(root, 900, 550));
+        primaryStage.setScene(new Scene(root, 1000, 800));
         primaryStage.show();
     }
 
