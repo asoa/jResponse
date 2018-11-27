@@ -19,13 +19,16 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="mainPanel" stylesheets="@/styles.css" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+<BorderPane fx:id="mainPanel" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
     <top>
         <TabPane>
             <tabs>
                 <Tab text="Discovery">
                     <content>
                         <VBox>
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </padding>
                             <HBox>
                                 <padding>
                                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -39,7 +42,7 @@
                                 <Button onAction="#onScanSelected" text="Scan">
                                 </Button>
                             </HBox>
-                            <TableView fx:id="ipTable" VBox.vgrow="ALWAYS">
+                            <TableView fx:id="ipTable" prefHeight="600">
                                 <columnResizePolicy>
                                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                                 </columnResizePolicy>
@@ -87,7 +90,7 @@
                                     <panes>
                                         <TitledPane text="Default Enumeration">
                                             <VBox alignment="TOP_CENTER" prefHeight="372.0" prefWidth="20.0" spacing="5.0">
-                                                <Button fx:id="test" onAction="#handleButtonClick" prefWidth="200.0" text="Computer Info" />
+                                                <Button onAction="#handleButtonClick" prefWidth="200.0" text="Computer Info" />
                                                 <Button onAction="#handleButtonClick" prefWidth="200.0" text="Network Connections" />
                                                 <Button onAction="#handleButtonClick" prefWidth="200" text="Running Programs" />
                                             </VBox>
@@ -128,8 +131,46 @@
                         </VBox>
                     </content>
                 </Tab>
-                <Tab text="Event Log" />
-                <Tab text="Hunting" />
+                <Tab text="Analysis" >
+                    <content>
+                        <VBox prefHeight="600">
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </padding>
+                            <children>
+                                <HBox prefHeight="43.0" prefWidth="1006.0">
+                                    <children>
+                                        <Button onAction="#handleAnalysisButton" text="Inventory">
+                                            <HBox.margin>
+                                                <Insets right="10.0" />
+                                            </HBox.margin>
+                                        </Button>
+                                        <Button  onAction="#handleAnalysisButton" text="Find Remote Users">
+                                            <HBox.margin>
+                                                <Insets right="10.0" />
+                                            </HBox.margin>
+                                        </Button>
+                                        <Button onAction="#handleAnalysisButton" text="Top Processes">
+                                            <HBox.margin>
+                                                <Insets right="10.0" />
+                                            </HBox.margin>
+                                        </Button>
+                                        <Button onAction="#handleAnalysisButton" text="Bottom Processes">
+                                            <HBox.margin>
+                                                <Insets right="10.0" />
+                                            </HBox.margin>
+                                        </Button>
+                                    </children>
+                                    <VBox.margin>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                    </VBox.margin>
+                                </HBox>
+                                <TextArea fx:id="sqlInput" prefHeight="200.0" prefWidth="200.0" />
+                                <TextArea fx:id="sqlOutput" prefHeight="400.0" prefWidth="200.0" />
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
             </tabs>
         </TabPane>
     </top>
