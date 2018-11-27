@@ -49,8 +49,7 @@ public class WmiParrallel extends Service<String> {
         scripts = new WmiScripts();
     }
 
-    public WmiParrallel() {}
-
+    // getters
     public String getFutureResults() {
         return futureResults.toString();
     }
@@ -69,24 +68,19 @@ public class WmiParrallel extends Service<String> {
                 try {
                     for (PingParrallel.PingResult result : pingResults) {
                         command = scripts.getScript(buttonName, result.getHostname());
-//                        future = pool.submit(new PSCommand(result, command));  // don't delete this works
-//                        futureResults.add(future.get() + "\n");
                         callables.add(new PSCommand(result, command));
 
                     }
                 } catch (Exception e) {
-                    System.out.println("Error in createTask" + e);
+                    System.out.println((char)27 + "[31m" + "Error in createTask" + e);
                 }
                 futures = pool.invokeAll(callables);
 
                 for(Future<String> future: futures) {
                     futureResults.add(future.get() + "\n");  // used to print output to text area in enumeration tab
-//                    wmiResults.put(future.)
                 }
 
                 return futureResults.toString();
-//                return future;
-
             }
 
         };
@@ -97,7 +91,6 @@ public class WmiParrallel extends Service<String> {
         private String ip;
         private String hostname;
         private PingParrallel.PingResult result;
-//        private String output;
         private List<String> output;
         private BufferedReader stdout;
         List<String> results;
@@ -112,39 +105,30 @@ public class WmiParrallel extends Service<String> {
             this.command = command;
         }
 
-//        public String call() {
     public String call() {
             try {
                 Process powershellProcess = Runtime.getRuntime().exec("powershell.exe " + command);
                 powershellProcess.getOutputStream().close();  // closes the process output stream to prepare for buffered stream
                 stdout = new BufferedReader(new InputStreamReader(powershellProcess.getInputStream()));
                 String line;
-//                String results="";
-//                List<String> results = new ArrayList<>();
                 while((line = stdout.readLine()) != null) {
-//                    results += line + "\n";
                     results.add(line + "\n");
-//                    System.out.println(line);
-//                    output.add(line);
                 }
-//                output.add(results);
                 wmiResults.put(hostname, results);  // add key:value to dict; used to write to db
                 stdout.close();  // close the stream
 
-
             } catch (Exception e) {
-                System.out.println("Error in call(): " + e);
+                System.out.println((char)27 + "[31m" + "Error in call(): " + e);
                 e.printStackTrace();
             }
-//            wmiResults.put(result.getHostname(), output);
-//            return toString();
             return toString();
         }
 
         @Override
         public String toString() {
-            String strFormat = "##### %s: %s #####\n" + results;
+            String strFormat = "\n##### %s: %s #####\n" + results;
             String result = String.format(strFormat, buttonName, hostname);
+            System.out.printf((char)27 + "[34m");
             System.out.println(result);
             return result;
         }

@@ -3,7 +3,6 @@ package datamodel;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -47,14 +46,15 @@ public class InsertNetworkConnections {
                         }
 
                     } catch (Exception e) {
-                        System.out.println(e);
+                        System.out.println((char)27 + "[31m" + e);
                     }
                 }
             } catch (Exception e) {
-                System.out.println("Error in insertDB networkConnections " + e);
+                System.out.println((char)27 + "[31m" + "Error in insertDB networkConnections " + e);
             }
         }
-        System.out.printf("Inserted %d records into the networkConnections table\n", recordCount);
+//        System.out.printf("Inserted %d records into the networkConnections table\n", recordCount);
+        System.out.println((char)27 + "[32m" + "\nInserted " + recordCount + " records into the networkConnections table");
         return true;
     }
 
@@ -72,7 +72,7 @@ public class InsertNetworkConnections {
                 matches.add(match.group(5));
             }
         } catch (Exception e) {
-            System.out.println("Error in InsertNetworkConnections::getMatch() " + e);
+            System.out.println((char)27 + "[33m" + "Error in InsertNetworkConnections::getMatch() " + e);
         }
         return matches;
     }

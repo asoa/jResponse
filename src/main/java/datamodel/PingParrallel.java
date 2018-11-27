@@ -59,21 +59,10 @@ public class PingParrallel extends Service<ObservableList<PingParrallel.PingResu
         pool.shutdown();
     }
 
-//    public void buildIPList() {
-//        for(PingResult result: aliveHosts) {
-//            aliveHostsList.add(result.ipAddress);
-//        }
-//    }
-
     // getters and setters
     public ObservableList<PingResult> getAliveHosts() {
         return aliveHosts;
     }
-
-    public List<NetworkDiscovery.IP> getHostList() {
-        return hostList;
-    }
-
 
     // start inner class Ping
     class Ping implements Callable<PingResult> {
@@ -105,17 +94,16 @@ public class PingParrallel extends Service<ObservableList<PingParrallel.PingResu
                 hostname = ipObj.getHostname().toLowerCase();
                 state = address.isReachable(TIMEOUT);  // Java implementation of ICMP ECHO REQUEST is sent to address
                 if (state) {
-                    System.out.println(ipAddress + ": " + hostname + ": " + state);  // debug code
+                    System.out.println((char)27 + "[34m" + ipAddress + ": " + hostname + ": " + state);  // debug code
                     aliveHosts.add(new PingResult(address.getHostAddress(), hostname, state));
                     aliveHostsList.add(address.getHostAddress());  // TODO: research using lambda
-//                    return new PingResult(address.getHostAddress(), state);
                 } else if (!state) {
                     return new PingResult(address.getHostAddress(), hostname, state);
                 }
             } catch (UnknownHostException e) {
-                System.out.println("UnknownHostException " + e.getMessage());
+                System.out.println((char)27 + "[31m" + "UnknownHostException " + e.getMessage());
             } catch (IOException e) {
-                System.out.println("IOException " + address.getHostAddress() + ": " + e.getMessage());
+                System.out.println((char)27 + "[31m" + "IOException " + address.getHostAddress() + ": " + e.getMessage());
             }
             return new PingResult(address.getHostAddress(), hostname, state);
         }

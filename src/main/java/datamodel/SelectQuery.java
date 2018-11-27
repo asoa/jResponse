@@ -48,21 +48,24 @@ public class SelectQuery {
 
             try(Statement statement = conn.createStatement()) {
                 resultSet = statement.executeQuery(query);
+                System.out.printf((char)27 + "[34m");
                 System.out.printf("%-30s %-20s %-45s %-10s %-10s\n", "Hostname","IP Address","OS Name","OS Version","User Name");
                 System.out.printf("%-30s %-20s %-45s %-10s %-10s\n", "--------","----------","-------","----------","---------");
                 fmt.format("%-30s %-20s %-45s %-10s %-10s\n","Hostname","IP Address","OS Name","OS Version","User Name");
                 fmt.format("%-30s %-20s %-45s %-10s %-10s\n", "--------","----------","-------","---------","---------");
 
                 while(resultSet.next()) {
+                    System.out.printf((char)27 + "[34m");
                     System.out.printf("%-30s %-20s %-45s %-10s %-10s\n", resultSet.getString(1),resultSet.getString(2),resultSet.getString(3),resultSet.getString(4),resultSet.getString(5));
                     fmt.format("%-30s %-20s %-45s %-10s %-10s\n", resultSet.getString(1),resultSet.getString(2),resultSet.getString(3),resultSet.getString(4),resultSet.getString(5));
                     result = sb.toString();
                 }
             } catch (SQLException e) {
-                System.out.println(e);
+                System.out.println((char)27 + "[31m" + e);
             }
         } else if (buttonName.equals("Find Remote Users")) {
             try(Statement statement = conn.createStatement()) {
+                System.out.printf((char)27 + "[34m");
                 String strFormat = "%-30s %-20s %-20s %-20s %-25s\n";
                 resultSet = statement.executeQuery(query);
                 System.out.printf(strFormat,"Hostname","IP Address","Remote Address","Owning Process Id","Owning Process Name");
@@ -75,13 +78,14 @@ public class SelectQuery {
                     result = sb.toString();
                 }
             } catch (Exception e) {
-                System.out.println(e);
+                System.out.println((char)27 + "[31m" + e);
             }
         } else if (buttonName.equals("Top Processes") || (buttonName.equals("Bottom Processes"))) {
             try(Statement statement = conn.createStatement()) {
+                System.out.printf((char)27 + "[34m");
                 String strFormat = "%-30s %-5s\n";
                 resultSet = statement.executeQuery(query);
-                System.out.printf(strFormat,"Process Name","Process Count");
+                System.out.printf(strFormat,"\nProcess Name","Process Count");
                 System.out.printf(strFormat,"------------","-------------");
                 fmt.format(strFormat,"Process Name","Process Count");
                 fmt.format(strFormat,"------------","-------------");
@@ -91,7 +95,7 @@ public class SelectQuery {
                     result = sb.toString();
                 }
             } catch (Exception e) {
-                System.out.println(e);
+                System.out.println((char)27 + "[31m" + e);
             }
         } else {
             return;

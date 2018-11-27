@@ -73,7 +73,6 @@ public class Controller {
 
         // bind the service returned observable list to the listview
         ping_service = new PingParrallel(networkDiscovery.getHostList());
-//        ((PingParrallel) ping_service).getAliveHosts();
         ipTable.itemsProperty().bind(ping_service.valueProperty());
         TableColumn<PingParrallel.PingResult, String> ipAddress = new TableColumn<PingParrallel.PingResult, String>("Reachable Hosts");
         ipAddress.setCellValueFactory(new PropertyValueFactory("ipAddress"));  // set the ipaddress column of the tablecolumn
@@ -85,7 +84,7 @@ public class Controller {
             enumTextArea.textProperty().bind(wmi_service.valueProperty());
 
         } catch(Exception e) {
-            System.out.println("Nothing to bind yet in textarea: " + e);
+            System.out.println((char)27 + "[31m" + "Nothing to bind yet in textarea: " + e);
         }
 
         // get db info
@@ -116,7 +115,7 @@ public class Controller {
                     endRange.setText(nw.getNwIPRange().get(1));
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                System.out.println((char)27 + "[31m" + e);
             }
         }
     }
@@ -130,12 +129,9 @@ public class Controller {
                 List<PingParrallel.PingResult> pingResultsList = new ArrayList<PingParrallel.PingResult>(pingResults);  // convert obs list to arraylist
                 System.out.println("Writing to Database...\n");
                 db_conn.dbComputerInsert(pingResultsList);
-//                for(PingParrallel.PingResult item: pingResultsList) {
-//                   System.out.printf("%s,%s\n", item.getHostname(), item.getIpAddress());
-//                }
 
             } catch (Exception e) {
-                System.out.println(e);
+                System.out.println((char)27 + "[31m" + e);
             }
 
             ipTable.getItems().clear();
@@ -160,8 +156,6 @@ public class Controller {
     public void handleButtonClick(ActionEvent e) throws InterruptedException {
         ObservableList<PingParrallel.PingResult> results = ipListView.getSelectionModel().getSelectedItems();  // get PingResult objects from ListView
         String buttonName = ((Button) e.getSource()).getText();  // get button name
-//        String script = scripts.getScript(buttonName);
-
         try {
             if (wmi_service.getState() == Service.State.READY) {
                 System.out.println("\nin the ready state");
@@ -169,9 +163,6 @@ public class Controller {
             } else if (wmi_service.getState() == Service.State.SUCCEEDED) {
                 System.out.println("\nin the succeed state");
                 db_conn.insertDB(buttonName, ((WmiParrallel) wmi_service).getWmiResults());
-
-//                String str = ((WmiParrallel) wmi_service).getFutureResults();
-//                enumTextArea.setText(str); // writes the callable toString() to the text area
                 wmi_service.reset();
                 wmi_service = new WmiParrallel(buttonName, results);
                 wmi_service.start();
@@ -183,18 +174,14 @@ public class Controller {
                 System.out.println("\n" + wmi_service.getState());
                 wmi_service = new WmiParrallel(buttonName, results);
                 wmi_service.start();
-//                Thread.sleep(5000);
             }
-//        System.out.println("button pressed: " + e.toString());
 
         } catch (Exception ex) {
             wmi_service = new WmiParrallel(buttonName, results);
             wmi_service.start();
-            System.out.println(ex);
+//            System.out.println(ex);
         } finally {
             enumTextArea.textProperty().bind(wmi_service.valueProperty());
-//            String str = ((WmiParrallel) wmi_service).getFutureResults();
-//            enumTextArea.setText(str); // writes the callable toString() to the text area
         }
     }
 
@@ -204,19 +191,13 @@ public class Controller {
         String sqlOutputTextArea = db_conn.selectQuery(buttonName);
         selectQuery = SelectQuery.getSelectQuery();
         try {
-//            for(String row: sqlOutputTextArea) {
-//                sqlOutputTextArea.add(row);
-//                sqlOuput.setText();
-//            }
             sqlOutput.setText(sqlOutputTextArea);
             sqlInput.setText(selectQuery);
         } catch (Exception ex) {
-            System.out.println("Error in handleAnalysisButton " + ex);
+            System.out.println((char)27 + "[31m" + "Error in handleAnalysisButton " + ex);
         }
     }
 
-
-    // TODO: fix redundant network list
     private void setIPRange() {
         for (NetworkDiscovery.NetworkInfo nw : networkDiscovery.getNwInfo()) {
             networkChoice.getItems().add(nw.getNetworkAndCidr());

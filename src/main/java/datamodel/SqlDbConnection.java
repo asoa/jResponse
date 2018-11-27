@@ -40,10 +40,11 @@ public class SqlDbConnection extends Service {
            try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             conn = DriverManager.getConnection(connectionUrl);
+            System.out.printf((char)27 + "[32m");
             System.out.printf("Connection to db: %s, successful\n", dbName);
         } catch (SQLException | ClassNotFoundException e){
                System.out.println(e);
-               System.out.printf("Connection to db: %s, failed\n", dbName);
+               System.out.printf((char)27 + "[31m" + "Connection to db: %s, failed\n", dbName);
         }
     }
 
@@ -101,6 +102,7 @@ public class SqlDbConnection extends Service {
             statement.execute(createTable);
             return true;
         } catch(SQLException e) {
+            System.out.printf((char)27 + "[31m");
             System.out.println(e);
         }
         return false;
@@ -116,7 +118,7 @@ public class SqlDbConnection extends Service {
                 System.out.println("resultSet");
             }
         } catch (SQLException e) {
-            System.out.println(e);
+            System.out.println((char)27 + "[31m" + e);
         }
     }
 
@@ -137,12 +139,13 @@ public class SqlDbConnection extends Service {
                     recordsAdded += 1;
 
                 } catch (Exception e) {
-                    System.out.println(e);
+                    System.out.println((char)27 + "[31m" + e);
                 }
             }
         } catch (SQLException e) {
-            System.out.println(e);
+            System.out.println((char)27 + "[31m" + e);
         }
+        System.out.printf((char)27 + "[32m");
         System.out.printf("Inserted %d records to computer table\n", recordsAdded);
     }
 
@@ -182,59 +185,4 @@ public class SqlDbConnection extends Service {
         String sqlQueryResults = selectQuery.getQueryResults();
         return sqlQueryResults;
     }
-
-
-//    public void dbProcessInsert(Map<String, List<String>> hostProcessDict) {
-//        String host;
-//        List<String> sublist;
-//        int recordCount = 0;
-//        String strFormat =
-//                "IF NOT EXISTS\n" +
-//                        "(SELECT 1 FROM processLog WHERE processId = '%s')\n" +
-//                        "BEGIN\n" +
-//                        "INSERT INTO dbo.processLog (hostName, processId, processName) VALUES ('%s','%s','%s')\n" +
-//                        "END\n";
-//        for(Map.Entry<String, List<String>> entry: hostProcessDict.entrySet()) {
-//            host = entry.getKey(); // get hostname
-//            sublist = entry.getValue().subList(3, entry.getValue().size());  // get list of processes
-//            try (Statement statement = conn.createStatement()){
-//                for(String s: sublist) {  // iterate over processes in sublist
-//                    try {
-//                        List<String> pid_process = getMatch(s);
-//                        if (pid_process.size() == 0) {
-//                            continue;
-//                        } else {
-//                            String insertSQL = String.format(strFormat, pid_process.get(0), host, pid_process.get(0), pid_process.get(1));
-//                            statement.execute(insertSQL);
-////                        System.out.printf("Host: %s, ProcessID:%s, ProcesName:%s\n", host, pid_process.get(0), pid_process.get(1));
-//                            recordCount++;
-//                        }
-//                    } catch (Exception e) {
-//                        System.out.println("Error in getMatch(): " + e);
-//                        continue;
-//                    }
-//                }
-//            } catch (Exception e) {
-//                System.out.println("Error in dbProcessInsert() " + e);
-//            }
-//        }
-//        System.out.printf("Inserted %d records into the process table\n", recordCount);
-//    }
-
-
-//    public List<String> getMatch(String s) {
-//        List<String> matches = new ArrayList<>();
-//
-//        Pattern patternObj = Pattern.compile("(\\d+)\\s+(\\w+.exe)");
-//        Matcher match = patternObj.matcher(s);
-//
-//        if(match.find()) {
-//            String pid = match.group(1);
-//            String process = match.group(2);
-//            matches.add(pid);
-//            matches.add(process);
-//        }
-//        return matches;
-//    }
-    // getters and setters
 }

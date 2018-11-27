@@ -2,8 +2,6 @@ package datamodel;
 
 import java.sql.Connection;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -39,21 +37,19 @@ public class InsertLoggedOnUser {
 
         for(Map.Entry<String, List<String>> entry: wmiResults.entrySet()) {
             host = entry.getKey(); // get hostname
-//            sublist = entry.getValue().subList(2,7);
             String user = getMatch(entry.getValue().get(3));
             try(Statement statement = conn.createStatement()) {
-//                List<String> values = new ArrayList<>(getMatch(sublist));
                 String hostName = (host).toLowerCase();
                 String insertSQL = String.format(strFormat,hostName,user,user,hostName,hostName,user);
                 statement.execute(insertSQL);
                 recordCount++;
-//                System.out.println(s);
 
             } catch (Exception e) {
-                System.out.println("Error in insertDB computerInfo " + e);
+                System.out.println((char)27 + "[31m" + "Error in insertDB computerInfo " + e);
             }
         }
-        System.out.printf("Inserted %d records into the currentUser table\n", recordCount);
+//        System.out.printf("Inserted %d records into the currentUser table\n", recordCount);
+        System.out.println((char)27 + "[32m" + "\nInserted " + recordCount + " records into the currentUser table");
         return true;
     }
 

@@ -3,7 +3,6 @@ package datamodel;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -44,20 +43,20 @@ public class InsertProcess {
                         } else {
                             String insertSQL = String.format(strFormat, pid_process.get(0), host, pid_process.get(0), pid_process.get(1));
                             statement.execute(insertSQL);
-//                        System.out.printf("Host: %s, ProcessID:%s, ProcesName:%s\n", host, pid_process.get(0), pid_process.get(1));
                             recordCount++;
                         }
                     } catch (Exception e) {
-                        System.out.println("Error in getMatch(): " + e);
+                        System.out.println((char)27 + "[31m" + "Error in getMatch(): " + e);
                         continue;
                     }
                 }
             } catch (Exception e) {
-                System.out.println("Error in dbProcessInsert() " + e);
+                System.out.println((char)27 + "[31m" + "Error in dbProcessInsert() " + e);
                 return false;
             }
         }
-        System.out.printf("Inserted %d records into the process table\n", recordCount);
+//        System.out.printf("Inserted %d records into the process table\n", recordCount);
+        System.out.println((char)27 + "[32m" + "\nInserted " + recordCount + " records into the process table");
         return true;
     }
 

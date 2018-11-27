@@ -62,7 +62,6 @@ public class NetworkDiscovery {
         // methods
 
         // getters and setters
-
         public String getIp() {
             return ip.get();
         }
@@ -146,8 +145,4 @@ public class NetworkDiscovery {
             }
         }
     } // end of inner class NetworkInfo
-
-//    public static void main(String[] args) {
-//        NetworkDiscovery test = new NetworkDiscovery();
-//    }
 }

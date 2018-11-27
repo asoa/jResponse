@@ -5,7 +5,6 @@ import java.sql.Statement;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class InsertComputerInfo {
     // instance vars
@@ -35,18 +34,16 @@ public class InsertComputerInfo {
             sublist = entry.getValue().subList(2,7);
             try(Statement statement = conn.createStatement()) {
                 List<String> values = new ArrayList<>(getMatch(sublist));
-//                String hostName = (values.get(4) + ".home.mylocal").toLowerCase();
-//                String hostName = (values.get(4)).toLowerCase();
                 String insertSQL = String.format(strFormat,host,values.get(0),values.get(1),values.get(2),values.get(3),host);
                 statement.execute(insertSQL);
                 recordCount++;
-//                System.out.println(s);
 
             } catch (Exception e) {
-                System.out.println("Error in insertDB computerInfo " + e);
+                System.out.println((char)27 + "[31m" + "Error in insertDB computerInfo " + e);
             }
         }
-        System.out.printf("Inserted %d records into the computerInfo table\n", recordCount);
+//        System.out.printf("Inserted %d records into the computerInfo table\n", recordCount);
+        System.out.println((char)27 + "[32m" + "\nInserted " + recordCount + " records into the computerInfo table");
         return true;
     }
 
@@ -64,7 +61,7 @@ public class InsertComputerInfo {
                 }
             }
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println((char)27 + "[33m" + e);
         }
         return matches;
     }

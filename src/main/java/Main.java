@@ -11,7 +11,6 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-//        Parent root = FXMLLoader.load(getClass().getResource("/main.fxml"));
         URL url = new File("src/main/main.fxml").toURI().toURL();
         Parent root = FXMLLoader.load(url);
         primaryStage.setTitle("JResponse");
@@ -25,11 +24,9 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) throws Exception {
-//        PowerShellResponse response = PowerShell.executeSingleCommand("Get-Process");
-//        System.out.println("List Processes:" + response.getCommandOutput());
+
         launch(args);
     }
 
-    // TODO: create host count
-    // TODO: handle network tunnels; /32 causes runtime exception
+    // TODO: create progress bar
 }
